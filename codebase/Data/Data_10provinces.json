@@ -1,0 +1,2880 @@
+[
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Đà Lạt",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Đà Lạt.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy Đà Lạt",
+                "estimated_cost_per_trip": 120000,
+                "best_for": "Tự do vượt đèo dốc, di chuyển linh hoạt từ trung tâm ra ngoại ô (Trại Mát, Cầu Đất, Tà Nung).",
+                "saving_tip": "Đà Lạt không có đèn giao thông và nhiều dốc cao, thuê xe máy tính theo ngày là giải pháp tiết kiệm và chủ động nhất cho nhóm 1-2 người."
+            },
+            {
+                "id": "transport_grab_bike",
+                "name": "GrabBike / Taxi Xe Máy",
+                "estimated_cost_per_trip": 35000,
+                "best_for": "Phù hợp di chuyển chặng ngắn nội thành (quanh Hồ Xuân Hương, Bánh căn Tăng Bạt Hổ, chợ đêm).",
+                "saving_tip": "Nếu lịch trình đi nhiều điểm cách xa nhau trên 5km, hãy chuyển sang thuê xe máy để tránh bị đội chi phí di chuyển."
+            },
+            {
+                "id": "transport_walk",
+                "name": "Đi bộ",
+                "estimated_cost_per_trip": 0,
+                "best_for": "Dạo mát quanh Hồ Xuân Hương, check-in Quảng trường Lâm Viên hoặc đi bộ len lỏi trong Chợ Đêm Đà Lạt.",
+                "saving_tip": "Tập hợp các điểm tham quan khu vực trung tâm vào cùng một buổi để đi bộ nghỉ ngơi, ngắm cảnh và tiết kiệm tiền xe."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_dl_001",
+                "name": "Tổ hợp nông nghiệp công nghệ cao VinEco Đà Lạt (Kết hợp VinWonders trải nghiệm)",
+                "type": "tham_quan",
+                "area": "Lạc Dương",
+                "average_cost_per_person": 150000,
+                "estimated_duration_minutes": 120,
+                "recommended_time_slot": "08:30-10:30",
+                "tags": [
+                    "nông nghiệp",
+                    "trải nghiệm",
+                    "sinh thái",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Check-in vườn hoa, vườn hồng tự do ngoại ô",
+                    "average_cost_per_person": 30000,
+                    "estimated_saving_per_person": 120000,
+                    "note": "Các nhà vườn địa phương có giá vào cửa rẻ hơn nếu người dùng chỉ có nhu cầu chụp ảnh check-in cơ bản."
+                },
+                "saving_tips": [
+                    "Nên đi theo đoàn hoặc mua vé combo trực tuyến để hưởng chiết khấu tốt nhất từ hệ sinh thái."
+                ]
+            },
+            {
+                "id": "place_dl_002",
+                "name": "Quảng trường Lâm Viên & Bông hoa Dã Quỳ khổng lồ",
+                "type": "tham_quan",
+                "area": "Phường 10",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "16:00-16:45",
+                "tags": [
+                    "miễn phí",
+                    "check-in",
+                    "biểu tượng"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Địa điểm công cộng hoàn toàn miễn phí, biểu tượng không thể bỏ qua của thành phố."
+                },
+                "saving_tips": [
+                    "Kết hợp dạo bộ quanh Hồ Xuân Hương ngay kế bên để chụp ảnh mà không tốn chi phí di chuyển chặng ngắn."
+                ]
+            },
+            {
+                "id": "place_dl_003",
+                "name": "Ga Đà Lạt",
+                "type": "tham_quan",
+                "area": "Phường 10",
+                "average_cost_per_person": 5000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "14:30-15:30",
+                "tags": [
+                    "kiến trúc",
+                    "lịch sử",
+                    "siêu rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 5000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Giá vé vào cổng tham quan nhà ga cổ cực kỳ rẻ, rất phù hợp với ngân sách thấp."
+                },
+                "saving_tips": [
+                    "Nếu chỉ chụp ảnh với đầu tàu cổ, mức phí 5.000đ là tối ưu. Tránh đặt vé tàu chạy trải nghiệm đi Trại Mát (khoảng 100.000đ - 150.000đ) nếu đang kẹt ngân sách."
+                ]
+            },
+            {
+                "id": "place_dl_004",
+                "name": "Đồi chè Cầu Đất & Săn mây",
+                "type": "tham_quan",
+                "area": "Xuân Trường",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 150,
+                "recommended_time_slot": "05:00-07:30",
+                "tags": [
+                    "miễn phí",
+                    "thiên nhiên",
+                    "săn mây",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Tham quan đồi chè tự do miễn phí, không tốn vé cổng."
+                },
+                "saving_tips": [
+                    "Điểm này nằm rất xa trung tâm (khoảng 25km). Bắt buộc phải tự đi bằng xe máy từ sáng sớm để săn mây, tránh đi taxi vì cước phí khứ hồi sẽ cực kỳ đắt đỏ."
+                ]
+            },
+            {
+                "id": "place_dl_005",
+                "name": "Bánh căn Đà Lạt ấm nóng",
+                "type": "an_sang",
+                "area": "Trung tâm Đà Lạt",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 40,
+                "recommended_time_slot": "07:45-08:25",
+                "tags": [
+                    "ăn sáng",
+                    "đặc sản",
+                    "ngon bổ rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Mì quảng Đà Lạt hoặc Bánh mì xíu mại chén",
+                    "average_cost_per_person": 25000,
+                    "estimated_saving_per_person": 15000,
+                    "note": "Bánh mì xíu mại là phương án ăn sáng siêu rẻ và đậm chất Đà Lạt khác."
+                },
+                "saving_tips": [
+                    "Chọn các quán gốc bản địa nằm trong hẻm nhỏ (đường Nhà Chung, dốc Tăng Bạt Hổ) để có giá chuẩn, tránh các tiệm quá đông khách du lịch."
+                ]
+            },
+            {
+                "id": "place_dl_006",
+                "name": "Lẩu gà lá é hoặc Lẩu bò Ba Toa chính gốc",
+                "type": "an_trua",
+                "area": "Phường 5",
+                "average_cost_per_person": 120000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "12:00-13:00",
+                "tags": [
+                    "đặc sản",
+                    "ăn trưa",
+                    "nhóm bạn"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bún bò Huế Đà Lạt / Cơm niêu bình dân",
+                    "average_cost_per_person": 50000,
+                    "estimated_saving_per_person": 70000,
+                    "note": "Thay đổi sang món ăn cá nhân nếu tổng ngân sách tour đang bị thâm hụt nghiêm trọng."
+                },
+                "saving_tips": [
+                    "Một nồi lẩu gà/lẩu bò định lượng rất nhiều, đi nhóm từ 3-4 người chia tiền sẽ rẻ hơn rất nhiều so với đi單 lẻ."
+                ]
+            },
+            {
+                "id": "place_dl_007",
+                "name": "Kem bơ Thanh Thảo hoặc Chạm Cà Phê",
+                "type": "cafe",
+                "area": "Quận trung tâm",
+                "average_cost_per_person": 35000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "15:30-16:15",
+                "tags": [
+                    "đặc sản",
+                    "ăn vặt",
+                    "giá tốt"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Sữa đậu nành nóng vỉa hè",
+                    "average_cost_per_person": 15000,
+                    "estimated_saving_per_person": 20000,
+                    "note": "Thức uống vỉa hè bình dân buổi chiều tối ấm áp."
+                },
+                "saving_tips": [
+                    "Chỉ chọn một quán ăn vặt/trải nghiệm đặc sản trong buổi chiều để giữ ngân sách chặt chẽ."
+                ]
+            },
+            {
+                "id": "place_dl_008",
+                "name": "Chợ Đêm Đà Lạt & Bánh tráng nướng",
+                "type": "an_toi",
+                "area": "Phường 1",
+                "average_cost_per_person": 60000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "19:00-20:30",
+                "tags": [
+                    "miễn phí",
+                    "ăn vặt",
+                    "trải nghiệm"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 60000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Dạo chợ đêm tự do, chi phí dự kiến chỉ dùng để ăn 1 chiếc bánh tráng nướng và uống 1 ly sữa đậu nành."
+                },
+                "saving_tips": [
+                    "Hỏi giá thật kỹ trước khi ăn các món xiên que nướng hoặc súp cua tại khu vực bậc thang chợ đêm để tránh bị đẩy giá du lịch cao."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_dl_001",
+                "name": "Tour Đà Lạt mộng mơ trong tầm giá",
+                "number_of_people": 2,
+                "budget_cap": 700000,
+                "required_place_ids": [
+                    "place_dl_002",
+                    "place_dl_003",
+                    "place_dl_004"
+                ],
+                "optional_place_ids": [
+                    "place_dl_005",
+                    "place_dl_006",
+                    "place_dl_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 150000
+                },
+                "expected_behavior": "Xây dựng tour đi xe máy săn mây Cầu Đất sớm, trưa ăn lẩu gà, chiều check-in Ga cổ và Quảng trường, tối dạo chợ đêm. Tổng chi phí tối ưu trong budget."
+            },
+            {
+                "case_id": "error_path_dl_001",
+                "name": "Vượt ngân sách do chọn tổ hợp nông nghiệp cao",
+                "number_of_people": 2,
+                "budget_cap": 500000,
+                "required_place_ids": [
+                    "place_dl_001",
+                    "place_dl_006"
+                ],
+                "optional_place_ids": [
+                    "place_dl_005",
+                    "place_dl_007"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 150000
+                },
+                "expected_behavior": "Giữ nguyên VinEco và Lẩu gà lá é vì có thuộc tính bắt buộc, tính toán và đưa ra cảnh báo thâm hụt tài chính. Khuyến nghị hệ thống gợi ý đổi bữa sáng bánh căn sang bánh mì xíu mại và cắt bớt phần kem bơ buổi chiều để kéo chi phí xuống sát mức trần."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Đà Nẵng",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Đà Nẵng.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy Đà Nẵng",
+                "estimated_cost_per_trip": 120000,
+                "best_for": "Tự do phượt các điểm xa như Bán đảo Sơn Trà, đèo Hải Vân hoặc chạy dọc đường bờ biển Võ Nguyên Giáp.",
+                "saving_tip": "Giá tính theo ngày (24h), đây là phương án tối ưu chi phí số một tại Đà Nẵng thay vì book nhiều chặng Grab riêng lẻ."
+            },
+            {
+                "id": "transport_grab_bike",
+                "name": "GrabBike / Xanh SM Bike",
+                "estimated_cost_per_trip": 30000,
+                "best_for": "Tiện lợi khi chỉ đi lại quanh trung tâm thành phố (Cầu Rồng, chợ Cồn, bãi biển Mỹ Khê).",
+                "saving_tip": "Nếu lịch trình có trên 3 điểm đến nằm xa nhau, hệ thống nên tự động gợi ý đổi sang thuê xe máy."
+            },
+            {
+                "id": "transport_walk",
+                "name": "Đi bộ",
+                "estimated_cost_per_trip": 0,
+                "best_for": "Dạo biển Mỹ Khê buổi chiều hoặc đi bộ ngắm cầu Rồng, cầu Sông Hàn về đêm.",
+                "saving_tip": "Gom nhóm các quán ăn và điểm check-in ven sông Hàn để đi bộ, cắt giảm chặng di chuyển ngắn."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_dn_001",
+                "name": "Khu du lịch Sun World Ba Na Hills (Vé cáp treo)",
+                "type": "tham_quan",
+                "area": "Hòa Vang",
+                "average_cost_per_person": 900000,
+                "estimated_duration_minutes": 360,
+                "recommended_time_slot": "08:00-14:00",
+                "tags": [
+                    "vui chơi",
+                    "view cao",
+                    "check-in",
+                    "chi phí rất cao"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Ngũ Hành Sơn + Bán đảo Sơn Trà",
+                    "average_cost_per_person": 40000,
+                    "estimated_saving_per_person": 860000,
+                    "note": "Thay thế bằng tổ hợp thiên nhiên miễn phí/giá rẻ nếu người dùng không đặt Bà Nà làm địa điểm bắt buộc."
+                },
+                "saving_tips": [
+                    "Nếu bắt buộc đi Bà Nà, cần cắt giảm toàn bộ chi phí ăn uống nhà hàng sang trọng, chuẩn bị sẵn nước lọc mang theo và sử dụng xe máy tự lái để lên chân núi thay vì đi taxi."
+                ]
+            },
+            {
+                "id": "place_dn_002",
+                "name": "Danh thắng Ngũ Hành Sơn",
+                "type": "tham_quan",
+                "area": "Ngũ Hành Sơn",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "08:30-10:00",
+                "tags": [
+                    "thiên nhiên",
+                    "văn hóa",
+                    "giá rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 40000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Giá vé leo bộ rất rẻ, là điểm đến lý tưởng cho tour ngân sách thấp."
+                },
+                "saving_tips": [
+                    "Nên chọn leo bộ đường bậc thang thay vì mua vé thang máy (15.000đ/lượt) nếu có sức khỏe tốt để tiết kiệm tối đa."
+                ]
+            },
+            {
+                "id": "place_dn_003",
+                "name": "Chùa Linh Ứng - Bán đảo Sơn Trà",
+                "type": "tham_quan",
+                "area": "Sơn Trà",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "15:00-16:30",
+                "tags": [
+                    "miễn phí",
+                    "tâm linh",
+                    "view biển",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Địa điểm mở cửa tự do hoàn toàn, có view ngắm toàn cảnh vịnh Đà Nẵng siêu đẹp."
+                },
+                "saving_tips": [
+                    "Chỉ tốn tiền gửi xe tùy tâm tại cổng chùa. Nên kết hợp chạy xe máy dọc mạn bán đảo để ngắm cảnh biển miễn phí."
+                ]
+            },
+            {
+                "id": "place_dn_004",
+                "name": "Bãi biển Mỹ Khê",
+                "type": "tham_quan",
+                "area": "Sơn Trà",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "16:45-17:45",
+                "tags": [
+                    "miễn phí",
+                    "tắm biển",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Bãi biển công cộng tuyệt đẹp, không tốn bất kỳ chi phí nào."
+                },
+                "saving_tips": [
+                    "Tự mang theo khăn tắm và đồ bơi để tránh dịch vụ thuê đồ đắt đỏ dọc bãi biển. Hạn chế ngồi ghế lựu/ghế lười có thu phí của các bãi tắm tư nhân."
+                ]
+            },
+            {
+                "id": "place_dn_005",
+                "name": "Cầu Rồng & Cầu Tình Yêu (Check-in tối)",
+                "type": "tham_quan",
+                "area": "Sơn Trà",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "20:30-21:15",
+                "tags": [
+                    "miễn phí",
+                    "đi bộ",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Đi dạo chụp ảnh tự do trên cầu và bến du thuyền."
+                },
+                "saving_tips": [
+                    "Nếu đi vào cuối tuần (Thứ 6, 7, CN), hãy căn giờ lúc 21:00 để xem Cầu Rồng phun lửa/phun nước miễn phí."
+                ]
+            },
+            {
+                "id": "place_dn_006",
+                "name": "Mì Quảng bình dân",
+                "type": "an_sang",
+                "area": "Hải Châu",
+                "average_cost_per_person": 35000,
+                "estimated_duration_minutes": 35,
+                "recommended_time_slot": "07:30-08:05",
+                "tags": [
+                    "ăn sáng",
+                    "đặc sản",
+                    "ngon bổ rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì gà Đà Nẵng",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 15000,
+                    "note": "Món ăn sáng nhanh gọn, siêu rẻ tại trung tâm."
+                },
+                "saving_tips": [
+                    "Chọn các quán mì Quảng gia truyền trong các kiệt/hẻm nhỏ trung tâm thay vì các chuỗi thương hiệu lớn phục vụ khách du lịch."
+                ]
+            },
+            {
+                "id": "place_dn_007",
+                "name": "Bánh tráng cuốn thịt heo - Quán Mậu hoặc Trần",
+                "type": "an_trua",
+                "area": "Hải Châu",
+                "average_cost_per_person": 130000,
+                "estimated_duration_minutes": 50,
+                "recommended_time_slot": "12:00-12:50",
+                "tags": [
+                    "đặc sản",
+                    "nổi tiếng",
+                    "giá vừa phải"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Food court Chợ Cồn hoặc Chợ Hàn",
+                    "average_cost_per_person": 40000,
+                    "estimated_saving_per_person": 90000,
+                    "note": "Khu ẩm thực chợ truyền thống có bán bánh tráng cuốn thịt heo suất nhỏ và hàng loạt món ăn vặt ngon rẻ khác."
+                },
+                "saving_tips": [
+                    "Nếu ngân sách đang eo hẹp, di chuyển thẳng vào chợ Cồn để ăn trưa vừa rẻ vừa được trải nghiệm không khí bản địa."
+                ]
+            },
+            {
+                "id": "place_dn_008",
+                "name": "Hải sản bình dân ven biển",
+                "type": "an_toi",
+                "area": "Sơn Trà",
+                "average_cost_per_person": 200000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "18:30-20:00",
+                "tags": [
+                    "hải sản",
+                    "ăn tối",
+                    "giá vừa"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bún chả cá Đà Nẵng",
+                    "average_cost_per_person": 40000,
+                    "estimated_saving_per_person": 160000,
+                    "note": "Lựa chọn đổi món tối sang bún chả cá nếu tổng chi phí trong ngày đang vượt khung nghiêm trọng."
+                },
+                "saving_tips": [
+                    "Chọn các quán hải sản bình dân khu vực sâu phía trong thay vì các nhà hàng lớn sát mặt biển Mỹ Khê. Hỏi rõ giá theo ký trước khi yêu cầu chế biến."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_dn_001",
+                "name": "Tour Đà Nẵng biển xanh giá rẻ",
+                "number_of_people": 2,
+                "budget_cap": 800000,
+                "required_place_ids": [
+                    "place_dn_002",
+                    "place_dn_003",
+                    "place_dn_004"
+                ],
+                "optional_place_ids": [
+                    "place_dn_006",
+                    "place_dn_007",
+                    "place_dn_005"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 160000
+                },
+                "expected_behavior": "Xây dựng lịch trình tối ưu bằng xe máy đi Ngũ Hành Sơn - Sơn Trà - Mỹ Khê, ăn trưa đặc sản, tổng chi phí kiểm soát tốt dưới budget."
+            },
+            {
+                "case_id": "error_path_dn_001",
+                "name": "Vượt ngân sách do chọn khu vui chơi lớn",
+                "number_of_people": 2,
+                "budget_cap": 1200000,
+                "required_place_ids": [
+                    "place_dn_001"
+                ],
+                "optional_place_ids": [
+                    "place_dn_006",
+                    "place_dn_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 160000
+                },
+                "expected_behavior": "Giữ nguyên vé Bà Nà Hills theo đúng rule bắt buộc, đưa ra thông báo cảnh báo thâm hụt ngân sách. Khuyến nghị hệ thống cắt giảm bữa tối hải sản sang bún chả cá bình dân để kéo chi phí xuống gần mức trần nhất có thể."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Hà Nội",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_grab_bike",
+                "name": "GrabBike",
+                "estimated_cost_per_trip": 35000,
+                "best_for": "Nhanh, tiện, phù hợp khi nhóm ít người hoặc cần tiết kiệm thời gian.",
+                "saving_tip": "Nếu đang vượt ngân sách, đổi một số chặng ngắn sang xe buýt hoặc đi bộ."
+            },
+            {
+                "id": "transport_bus",
+                "name": "Xe buýt công cộng",
+                "estimated_cost_per_trip": 8000,
+                "best_for": "Rẻ, phù hợp với sinh viên và nhóm muốn tối ưu chi phí.",
+                "saving_tip": "Ưu tiên bus cho các chặng dài giữa các quận trung tâm."
+            },
+            {
+                "id": "transport_walk",
+                "name": "Đi bộ",
+                "estimated_cost_per_trip": 0,
+                "best_for": "Các điểm gần nhau như Hồ Gươm, phố cổ, Nhà Thờ Lớn.",
+                "saving_tip": "Gom các địa điểm cùng khu vực để giảm chi phí di chuyển."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_001",
+                "name": "Văn Miếu - Quốc Tử Giám",
+                "type": "tham_quan",
+                "area": "Đống Đa",
+                "average_cost_per_person": 70000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "09:00-10:30",
+                "tags": [
+                    "lịch sử",
+                    "văn hóa",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Đi bộ quanh khu Văn Miếu và chụp ảnh bên ngoài",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 70000,
+                    "note": "Phù hợp nếu user không bắt buộc vào bên trong."
+                },
+                "saving_tips": [
+                    "Đi xe buýt đến điểm gần nhất để giảm chi phí di chuyển.",
+                    "Kết hợp tham quan Văn Miếu với ăn trưa ở khu Đống Đa để tránh di chuyển xa."
+                ]
+            },
+            {
+                "id": "place_002",
+                "name": "Hồ Hoàn Kiếm",
+                "type": "tham_quan",
+                "area": "Hoàn Kiếm",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "14:00-15:00",
+                "tags": [
+                    "miễn phí",
+                    "đi bộ",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Địa điểm miễn phí, rất phù hợp với lịch trình ngân sách thấp."
+                },
+                "saving_tips": [
+                    "Gom cùng Nhà Thờ Lớn và phố cổ để đi bộ, không cần gọi xe.",
+                    "Mang nước cá nhân để tránh mua đồ uống đắt ở khu du lịch."
+                ]
+            },
+            {
+                "id": "place_003",
+                "name": "Nhà Thờ Lớn Hà Nội",
+                "type": "tham_quan",
+                "area": "Hoàn Kiếm",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "15:15-16:00",
+                "tags": [
+                    "miễn phí",
+                    "kiến trúc",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Địa điểm miễn phí, có thể kết hợp với Hồ Gươm."
+                },
+                "saving_tips": [
+                    "Không nên chọn quán cà phê quá sát Nhà Thờ nếu ngân sách thấp.",
+                    "Đi bộ từ Hồ Gươm sang Nhà Thờ Lớn để tiết kiệm chi phí."
+                ]
+            },
+            {
+                "id": "place_004",
+                "name": "Phố cổ Hà Nội",
+                "type": "tham_quan",
+                "area": "Hoàn Kiếm",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "16:00-17:30",
+                "tags": [
+                    "miễn phí",
+                    "ăn vặt",
+                    "đi bộ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Đi bộ theo tuyến ngắn Hồ Gươm - Hàng Gai - Tạ Hiện",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Tối ưu thời gian và giảm phát sinh chi phí di chuyển."
+                },
+                "saving_tips": [
+                    "Giới hạn ngân sách ăn vặt trước khi đi bộ phố cổ.",
+                    "Tránh mua đồ lưu niệm nếu ngân sách trong ngày quá chặt."
+                ]
+            },
+            {
+                "id": "place_005",
+                "name": "Bảo tàng Dân tộc học Việt Nam",
+                "type": "tham_quan",
+                "area": "Cầu Giấy",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 120,
+                "recommended_time_slot": "09:00-11:00",
+                "tags": [
+                    "bảo tàng",
+                    "văn hóa",
+                    "giá rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chọn một địa điểm miễn phí ở khu Hoàn Kiếm",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 40000,
+                    "note": "Chỉ dùng nếu bảo tàng không phải địa điểm bắt buộc."
+                },
+                "saving_tips": [
+                    "Nếu đi từ trung tâm, cân nhắc xe buýt thay vì Grab.",
+                    "Không nên ghép với quá nhiều điểm xa vì chi phí di chuyển sẽ tăng."
+                ]
+            },
+            {
+                "id": "place_006",
+                "name": "Đài quan sát Lotte Observation Deck",
+                "type": "tham_quan",
+                "area": "Ba Đình",
+                "average_cost_per_person": 280000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "15:30-17:00",
+                "tags": [
+                    "view cao",
+                    "check-in",
+                    "chi phí cao"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Hồ Tây hoặc phố đi bộ Hồ Gươm",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 280000,
+                    "note": "Nếu Lotte là địa điểm bắt buộc, không được tự động xóa; chỉ cảnh báo vượt ngân sách."
+                },
+                "saving_tips": [
+                    "Nếu vẫn giữ Lotte, cần giảm mạnh chi phí ăn uống hoặc di chuyển.",
+                    "Đổi Grab sang xe buýt cho các chặng còn lại để bù chi phí vé."
+                ]
+            },
+            {
+                "id": "place_007",
+                "name": "Bún chả bình dân khu Đống Đa",
+                "type": "an_trua",
+                "area": "Đống Đa",
+                "average_cost_per_person": 50000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "11:30-12:15",
+                "tags": [
+                    "ngon bổ rẻ",
+                    "món Việt",
+                    "phù hợp sinh viên"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì hoặc xôi gần Văn Miếu",
+                    "average_cost_per_person": 25000,
+                    "estimated_saving_per_person": 25000,
+                    "note": "Phù hợp khi lịch trình đang vượt ngân sách nhẹ."
+                },
+                "saving_tips": [
+                    "Chọn quán bình dân thay vì nhà hàng gần điểm du lịch.",
+                    "Đặt mức trần ăn trưa khoảng 50.000-60.000đ/người."
+                ]
+            },
+            {
+                "id": "place_008",
+                "name": "Phở sáng khu Hoàn Kiếm",
+                "type": "an_sang",
+                "area": "Hoàn Kiếm",
+                "average_cost_per_person": 45000,
+                "estimated_duration_minutes": 40,
+                "recommended_time_slot": "08:00-08:40",
+                "tags": [
+                    "ăn sáng",
+                    "món Việt",
+                    "giá vừa phải"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì sáng",
+                    "average_cost_per_person": 25000,
+                    "estimated_saving_per_person": 20000,
+                    "note": "Phù hợp nếu cần tiết kiệm thêm ngân sách cho vé tham quan."
+                },
+                "saving_tips": [
+                    "Ăn sáng trước khi vào khu du lịch đông khách.",
+                    "Tránh gọi thêm đồ uống nếu muốn giữ ngân sách chặt."
+                ]
+            },
+            {
+                "id": "place_009",
+                "name": "Cà phê trứng phố cổ",
+                "type": "cafe",
+                "area": "Hoàn Kiếm",
+                "average_cost_per_person": 60000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "15:30-16:30",
+                "tags": [
+                    "đặc sản Hà Nội",
+                    "trải nghiệm",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Trà đá hoặc cà phê bình dân",
+                    "average_cost_per_person": 15000,
+                    "estimated_saving_per_person": 45000,
+                    "note": "Nên đề xuất khi ngân sách bị vượt do vé tham quan hoặc Grab."
+                },
+                "saving_tips": [
+                    "Chỉ chọn một quán cà phê trải nghiệm trong ngày.",
+                    "Nếu vượt ngân sách, đổi sang đồ uống bình dân ở cùng khu vực."
+                ]
+            },
+            {
+                "id": "place_010",
+                "name": "Lẩu/nướng bình dân buổi tối",
+                "type": "an_toi",
+                "area": "Cầu Giấy",
+                "average_cost_per_person": 120000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "18:30-20:00",
+                "tags": [
+                    "ăn tối",
+                    "nhóm bạn",
+                    "giá vừa"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Cơm rang hoặc bún/phở tối",
+                    "average_cost_per_person": 50000,
+                    "estimated_saving_per_person": 70000,
+                    "note": "Phù hợp khi cần cắt giảm chi phí cuối ngày."
+                },
+                "saving_tips": [
+                    "Nếu nhóm đông, đặt trần chi phí ăn tối trước khi chọn quán.",
+                    "Tránh chọn buffet nếu ngân sách trong ngày dưới 500.000đ/người."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_001",
+                "name": "Lịch trình trong ngân sách",
+                "number_of_people": 2,
+                "budget_cap": 1000000,
+                "required_place_ids": [
+                    "place_001",
+                    "place_002",
+                    "place_003"
+                ],
+                "optional_place_ids": [
+                    "place_008",
+                    "place_007",
+                    "place_009",
+                    "place_010"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_bus",
+                    "estimated_total_transport_cost": 96000
+                },
+                "expected_behavior": "Tạo lịch trình đầy đủ và báo còn dư ngân sách."
+            },
+            {
+                "case_id": "error_path_001",
+                "name": "Địa điểm bắt buộc làm vượt ngân sách",
+                "number_of_people": 2,
+                "budget_cap": 500000,
+                "required_place_ids": [
+                    "place_006",
+                    "place_001"
+                ],
+                "optional_place_ids": [
+                    "place_008",
+                    "place_007",
+                    "place_009"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_grab_bike",
+                    "estimated_total_transport_cost": 210000
+                },
+                "expected_behavior": "Giữ nguyên Lotte và Văn Miếu, cảnh báo vượt ngân sách, đề xuất đổi Grab sang bus và đổi quán ăn/cà phê rẻ hơn."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Thành phố Hồ Chí Minh",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại TP. Hồ Chí Minh.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_grab_bike",
+                "name": "GrabBike / Xanh SM Bike",
+                "estimated_cost_per_trip": 30000,
+                "best_for": "Nhanh chóng, luồn lách tốt qua các điểm kẹt xe nội thành Quận 1, Quận 3.",
+                "saving_tip": "Nếu đang vượt ngân sách, đổi một số chặng ngắn dưới 1km sang đi bộ hoặc đi xe buýt công cộng."
+            },
+            {
+                "id": "transport_bus",
+                "name": "Xe buýt công cộng / Xe buýt điện",
+                "estimated_cost_per_trip": 7000,
+                "best_for": "Rẻ, rất phù hợp khi di chuyển chặng dài từ trung tâm sang khu vực Quận 2 cũ, Quận 7 hoặc xuống Quận 9 (VinWonders).",
+                "saving_tip": "Ưu tiên dùng xe buýt cho các trục đường lớn để cắt giảm tối đa chi phí di chuyển."
+            },
+            {
+                "id": "transport_walk",
+                "name": "Đi bộ",
+                "estimated_cost_per_trip": 0,
+                "best_for": "Các điểm nằm sát nhau ở trung tâm Quận 1 như Nhà thờ Đức Bà, Bưu điện Thành phố, Đường sách Nguyễn Văn Bình.",
+                "saving_tip": "Gom các địa điểm này vào cùng một khung giờ để đi bộ, không cần đặt xe chặng ngắn."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_hcm_001",
+                "name": "Đài quan sát Landmark 81 SkyView",
+                "type": "tham_quan",
+                "area": "Bình Thạnh",
+                "average_cost_per_person": 420000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "16:30-18:00",
+                "tags": [
+                    "view cao",
+                    "check-in",
+                    "chi phí rất cao",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Cà phê hoặc dạo chơi công viên Vinhomes Central Park",
+                    "average_cost_per_person": 50000,
+                    "estimated_saving_per_person": 370000,
+                    "note": "Check-in dưới chân tòa nhà và đi dạo công viên ven sông hoàn toàn miễn phí, vẫn chụp được toàn cảnh Landmark 81 hoành tráng."
+                },
+                "saving_tips": [
+                    "Nếu Landmark 81 SkyView là điểm bắt buộc, hệ thống phải giảm mạnh chi phí ăn uống và đổi toàn bộ Grab sang xe buýt để bù lại tiền vé."
+                ]
+            },
+            {
+                "id": "place_hcm_002",
+                "name": "Công viên chủ đề VinWonders Grand Park",
+                "type": "tham_quan",
+                "area": "Quận 9 (TP. Thủ Đức)",
+                "average_cost_per_person": 250000,
+                "estimated_duration_minutes": 240,
+                "recommended_time_slot": "14:00-18:00",
+                "tags": [
+                    "vui chơi",
+                    "công viên nước",
+                    "check-in",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Khu đô thị Grand Park (Tham quan quảng trường miễn phí)",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 250000,
+                    "note": "Chỉ check-in khu vực công viên ánh sáng bên ngoài nếu ngân sách không đủ mua vé vào cổng khu vui chơi."
+                },
+                "saving_tips": [
+                    "Nằm rất xa trung tâm, bắt buộc dùng xe buýt điện VinBus để di chuyển miễn phí/giá rẻ nhằm tiết kiệm tiền taxi."
+                ]
+            },
+            {
+                "id": "place_hcm_003",
+                "name": "Bưu điện Thành phố & Nhà thờ Đức Bà",
+                "type": "tham_quan",
+                "area": "Quận 1",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "08:30-09:30",
+                "tags": [
+                    "miễn phí",
+                    "kiến trúc",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Địa điểm mang tính biểu tượng hoàn toàn miễn phí, cực kỳ phù hợp cho lịch trình tiết kiệm."
+                },
+                "saving_tips": [
+                    "Kết hợp đi bộ sang Đường sách Nguyễn Văn Bình ngay bên cạnh để không phát sinh chi phí di chuyển."
+                ]
+            },
+            {
+                "id": "place_hcm_004",
+                "name": "Dinh Độc Lập",
+                "type": "tham_quan",
+                "area": "Quận 1",
+                "average_cost_per_person": 65000,
+                "estimated_duration_minutes": 120,
+                "recommended_time_slot": "09:45-11:45",
+                "tags": [
+                    "lịch sử",
+                    "văn hóa",
+                    "giá rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chụp ảnh check-in bãi cỏ và cổng Dinh từ phía ngoài",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 65000,
+                    "note": "Phù hợp nếu người dùng chỉ muốn check-in bối cảnh bên ngoài mà không có nhu cầu vào trong xem hiện vật."
+                },
+                "saving_tips": [
+                    "Sử dụng thẻ sinh viên/học sinh để nhận ưu đãi giảm giá vé cổng xuống mức thấp nhất."
+                ]
+            },
+            {
+                "id": "place_hcm_005",
+                "name": "Chợ Bến Thành & Trải nghiệm ăn vặt",
+                "type": "tham_quan",
+                "area": "Quận 1",
+                "average_cost_per_person": 50000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "15:00-16:00",
+                "tags": [
+                    "ẩm thực",
+                    "mua sắm",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chỉ dạo mát chụp ảnh cổng chợ",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 50000,
+                    "note": "Cắt giảm chi phí ăn vặt bên trong nếu ngân sách tổng thể đang bị thâm hụt."
+                },
+                "saving_tips": [
+                    "Hỏi giá kỹ trước khi ăn uống hoặc mua đồ lưu niệm bên trong chợ để tránh giá du lịch cao."
+                ]
+            },
+            {
+                "id": "place_hcm_006",
+                "name": "Cơm tấm sườn bì chả bình dân",
+                "type": "an_sang",
+                "area": "Quận 3",
+                "average_cost_per_person": 45000,
+                "estimated_duration_minutes": 35,
+                "recommended_time_slot": "07:30-08:05",
+                "tags": [
+                    "ăn sáng",
+                    "đặc sản",
+                    "ngon bổ rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì hẻm / Xe bánh mì đường phố",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 25000,
+                    "note": "Lựa chọn siêu tiết kiệm cho bữa sáng nạp năng lượng."
+                },
+                "saving_tips": [
+                    "Chọn các quán cơm tấm bình dân trong ngõ/hẻm thay vì các chuỗi thương hiệu lớn mặt tiền trung tâm."
+                ]
+            },
+            {
+                "id": "place_hcm_007",
+                "name": "Hủ tiếu Nam Vang trung tâm",
+                "type": "an_trua",
+                "area": "Quận 1",
+                "average_cost_per_person": 70000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "12:00-12:45",
+                "tags": [
+                    "đặc sản",
+                    "ăn trưa",
+                    "giá vừa phải"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Khu ẩm thực (Food court) Chợ bến Thành hoặc cơm trưa văn phòng hẻm",
+                    "average_cost_per_person": 40000,
+                    "estimated_saving_per_person": 30000,
+                    "note": "Giúp hạ thấp chi phí bữa trưa khi tổng tour bị đội giá do vé tham quan."
+                },
+                "saving_tips": [
+                    "Hạn chế gọi thêm các món phụ (xương thêm, nước béo) để giữ đúng khung giá trần của món ăn."
+                ]
+            },
+            {
+                "id": "place_hcm_008",
+                "name": "Cà phê bệt Nhà thờ Đức Bà / Công viên 30/4",
+                "type": "cafe",
+                "area": "Quận 1",
+                "average_cost_per_person": 20000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "16:00-16:45",
+                "tags": [
+                    "trải nghiệm",
+                    "vỉa hè",
+                    "siêu rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Nét văn hóa vỉa hè độc đáo của Sài Gòn với mức giá không thể rẻ hơn."
+                },
+                "saving_tips": [
+                    "Vừa uống cà phê ngắm phố xá vừa có không gian nghỉ chân thoải mái mà không cần vào các quán máy lạnh đắt tiền."
+                ]
+            },
+            {
+                "id": "place_hcm_009",
+                "name": "Ốc bình dân Sài Gòn buổi tối",
+                "type": "an_toi",
+                "area": "Quận 4",
+                "average_cost_per_person": 150000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "18:30-20:00",
+                "tags": [
+                    "ăn tối",
+                    "đặc sản",
+                    "nhóm bạn"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì Huỳnh Hoa hoặc Phở bò truyền thống",
+                    "average_cost_per_person": 65000,
+                    "estimated_saving_per_person": 85000,
+                    "note": "Thay đổi hình thức ăn tối nhanh gọn để cắt giảm chi phí cuối ngày nếu budget thắt chặt."
+                },
+                "saving_tips": [
+                    "Di chuyển sang khu vực Quận 4 hoặc Quận 10 để ăn ốc tại các con hẻm nổi tiếng, đi đông chia tiền theo đĩa sẽ rẻ hơn."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_hcm_001",
+                "name": "Tour Sài Gòn trung tâm tối ưu chi phí",
+                "number_of_people": 2,
+                "budget_cap": 700000,
+                "required_place_ids": [
+                    "place_hcm_003",
+                    "place_hcm_004"
+                ],
+                "optional_place_ids": [
+                    "place_hcm_006",
+                    "place_hcm_007",
+                    "place_hcm_008",
+                    "place_hcm_009"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_walk",
+                    "estimated_total_transport_cost": 60000
+                },
+                "expected_behavior": "Thiết kế tour đi bộ kết hợp Grab ngắn quanh Quận 1 và Quận 3, ăn uống các món đặc sản bình dân. Tổng chi phí kiểm soát tốt dưới budget."
+            },
+            {
+                "case_id": "error_path_hcm_001",
+                "name": "Vượt ngân sách do gộp đài quan sát Landmark 81",
+                "number_of_people": 2,
+                "budget_cap": 800000,
+                "required_place_ids": [
+                    "place_hcm_001"
+                ],
+                "optional_place_ids": [
+                    "place_hcm_006",
+                    "place_hcm_007",
+                    "place_hcm_009"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_grab_bike",
+                    "estimated_total_transport_cost": 120000
+                },
+                "expected_behavior": "Giữ nguyên vé lên Landmark 81 SkyView vì có thuộc tính bắt buộc, tính toán và đưa ra cảnh báo thâm hụt ngân sách. Khuyến nghị người dùng đổi bữa tối ăn ốc sang ăn bánh mì mua mang đi để tiết kiệm tiền."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Huế",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Huế.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy tại Huế",
+                "estimated_cost_per_trip": 100000,
+                "best_for": "Cực kỳ linh hoạt, phù hợp di chuyển từ trung tâm thành phố ra các lăng tẩm ở ngoại ô (bán kính 5-10km).",
+                "saving_tip": "Giá thuê tính theo ngày, là phương án tiết kiệm nhất cho hành trình tham quan nhiều lăng tẩm xa nhau."
+            },
+            {
+                "id": "transport_grab_bike",
+                "name": "GrabBike / Xanh SM Bike",
+                "estimated_cost_per_trip": 25000,
+                "best_for": "Nhanh chóng, tiện lợi khi di chuyển giữa các điểm nội thành như Đại Nội, Chùa Thiên Mụ, Chợ Đông Ba.",
+                "saving_tip": "Nếu di chuyển trên 4 chặng trong ngày, hãy cân nhắc đổi sang thuê xe máy để tối ưu chi phí."
+            },
+            {
+                "id": "transport_walk",
+                "name": "Đi bộ",
+                "estimated_cost_per_trip": 0,
+                "best_for": "Di chuyển bên trong khuôn viên Đại Nội hoặc khu vực cầu Trường Tiền - phố đi bộ Nguyễn Đình Chiểu.",
+                "saving_tip": "Gom các điểm nội thành gần nhau để đi bộ, tránh đặt xe cho các chặng dưới 1km."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_hue_001",
+                "name": "Quần thể Đại Nội Huế (Hoàng Thành)",
+                "type": "tham_quan",
+                "area": "Thuận Thành",
+                "average_cost_per_person": 200000,
+                "estimated_duration_minutes": 150,
+                "recommended_time_slot": "08:00-10:30",
+                "tags": [
+                    "lịch sử",
+                    "văn hóa",
+                    "di sản",
+                    "chi phí cao"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Chụp ảnh check-in khu vực Ngọ Môn và Kỳ Đài phía ngoài",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 200000,
+                    "note": "Khu vực quảng trường phía ngoài hoàn toàn miễn phí, phù hợp nếu user chỉ muốn lấy bối cảnh Huế."
+                },
+                "saving_tips": [
+                    "Nếu kế hoạch đi cả Đại Nội và các Lăng (Minh Mạng, Tự Đức, Khải Định), khuyên user mua vé tuyến combo 3 điểm hoặc 4 điểm để tiết kiệm lên đến 30% tổng tiền vé."
+                ]
+            },
+            {
+                "id": "place_hue_002",
+                "name": "Chùa Thiên Mụ",
+                "type": "tham_quan",
+                "area": "Hương Long",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "16:30-17:30",
+                "tags": [
+                    "miễn phí",
+                    "tâm linh",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Ngôi chùa biểu tượng của Huế mở cửa tự do, cực kỳ thích hợp cho tour giá rẻ."
+                },
+                "saving_tips": [
+                    "Có thể đi GrabBike hướng dọc bờ sông Hương để ngắm cảnh, hoặc thưởng thức tàu hũ (đậu hũ) ngay dưới chân cổng chùa với giá chỉ khoảng 10.000đ."
+                ]
+            },
+            {
+                "id": "place_hue_003",
+                "name": "Lăng Khải Định",
+                "type": "tham_quan",
+                "area": "Hương Thủy",
+                "average_cost_per_person": 150000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "14:00-15:30",
+                "tags": [
+                    "kiến trúc",
+                    "lịch sử",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Lăng Minh Mạng hoặc Lăng Tự Đức",
+                    "average_cost_per_person": 150000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Đồng giá vé nhưng Lăng Minh Mạng/Tự Đức có khuôn viên rộng và nhiều mảng xanh hơn, tối ưu thời gian trải nghiệm hơn nếu chỉ được chọn 1 lăng."
+                },
+                "saving_tips": [
+                    "Lăng nằm khá xa trung tâm, bắt buộc phải dùng xe máy hoặc mua vé combo để tránh phát sinh chi phí di chuyển đơn lẻ."
+                ]
+            },
+            {
+                "id": "place_hue_004",
+                "name": "Làng hương Thủy Xuân",
+                "type": "tham_quan",
+                "area": "Thủy Xuân",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "15:45-16:30",
+                "tags": [
+                    "miễn phí",
+                    "check-in",
+                    "văn hóa"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Các cô chú chủ quán cho chụp ảnh miễn phí cùng các bó hương đa sắc màu."
+                },
+                "saving_tips": [
+                    "Dù miễn phí chụp ảnh, nên mua ủng hộ một món đồ lưu niệm nhỏ (quạt, vòng tay) giá 20.000đ - 30.000đ hoặc thuê cổ phục tại tiệm để có trải nghiệm check-in trọn vẹn nhất."
+                ]
+            },
+            {
+                "id": "place_hue_005",
+                "name": "Chợ Đông Ba",
+                "type": "tham_quan",
+                "area": "Phú Hòa",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "10:45-11:45",
+                "tags": [
+                    "miễn phí",
+                    "mua sắm",
+                    "ẩm thực"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Địa điểm lý tưởng để vừa tham quan đời sống địa phương vừa kết hợp ăn trưa giá rẻ."
+                },
+                "saving_tips": [
+                    "Vào sâu khu chợ ẩm thực (food court nội khu) để ăn các món bún nghệ, bánh khoái, bánh lọc với đúng giá gốc bình dân của người bản địa."
+                ]
+            },
+            {
+                "id": "place_hue_006",
+                "name": "Bún bò Huế chuẩn vị (Quán gốc bản địa)",
+                "type": "an_sang",
+                "area": "Trung tâm Huế",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 40,
+                "recommended_time_slot": "07:00-07:40",
+                "tags": [
+                    "ăn sáng",
+                    "đặc sản",
+                    "ngon bổ rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mỳ bột lọc Huế",
+                    "average_cost_per_person": 15000,
+                    "estimated_saving_per_person": 25000,
+                    "note": "Món ăn sáng độc đáo, siêu rẻ của học sinh sinh viên Huế."
+                },
+                "saving_tips": [
+                    "Nên ăn tại các quán nằm trong hẻm (đường Nguyễn Công Trứ, Chi Lăng) thay vì các nhà hàng mặt tiền lớn phục vụ khách đoàn."
+                ]
+            },
+            {
+                "id": "place_hue_007",
+                "name": "Mẹt bánh bèo - nậm - lọc mộc mạc",
+                "type": "an_trua",
+                "area": "Vĩ Dạ",
+                "average_cost_per_person": 50000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "12:00-12:45",
+                "tags": [
+                    "ăn trưa",
+                    "đặc sản",
+                    "giá bình dân"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Cơm hến / Bún hến Vĩ Dạ",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 30000,
+                    "note": "Cơm hến là một trong những món đặc sản có giá rẻ nhất tại Huế."
+                },
+                "saving_tips": [
+                    "Gọi một mẹt combo chung cho cả nhóm chia nhau để được thử nhiều loại bánh mà không lo lãng phí hay vượt ngân sách."
+                ]
+            },
+            {
+                "id": "place_hue_008",
+                "name": "Chè hẻm cung đình Huế",
+                "type": "cafe",
+                "area": "Phú Hội",
+                "average_cost_per_person": 20000,
+                "estimated_duration_minutes": 40,
+                "recommended_time_slot": "15:00-15:40",
+                "tags": [
+                    "ăn vặt",
+                    "đặc sản",
+                    "siêu rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Giá một ly chè Huế rất rẻ, phù hợp để nghỉ chân giờ chiều."
+                },
+                "saving_tips": [
+                    "Thử món đặc sắc nhất là chè bột lọc bọc heo quay để có trải nghiệm ẩm thực độc bản."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_hue_001",
+                "name": "Lịch trình Huế di sản trong tầm giá",
+                "number_of_people": 2,
+                "budget_cap": 700000,
+                "required_place_ids": [
+                    "place_hue_001",
+                    "place_hue_002"
+                ],
+                "optional_place_ids": [
+                    "place_hue_006",
+                    "place_hue_005",
+                    "place_hue_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 130000
+                },
+                "expected_behavior": "Thiết kế tour đi Đại Nội buổi sáng, ăn trưa chợ Đông Ba, chiều đi chùa Thiên Mụ bằng xe máy, tổng chi phí nằm gọn trong ngân sách."
+            },
+            {
+                "case_id": "error_path_hue_001",
+                "name": "Vượt ngân sách do gộp nhiều điểm di tích lớn",
+                "number_of_people": 2,
+                "budget_cap": 500000,
+                "required_place_ids": [
+                    "place_hue_001",
+                    "place_hue_003"
+                ],
+                "optional_place_ids": [
+                    "place_hue_006",
+                    "place_hue_007"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 130000
+                },
+                "expected_behavior": "Giữ nguyên Đại Nội và Lăng Khải Định vì người dùng bắt buộc chọn, đưa ra cảnh báo thâm hụt tài chính do tiền vé tham quan (350.000đ/người), đồng thời đề xuất đổi bữa trưa mẹt bánh sang phương án ăn Cơm hến giá rẻ để giảm bớt gánh nặng ngân sách."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Khánh Hòa",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Nha Trang - Khánh Hòa.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy Nha Trang",
+                "estimated_cost_per_trip": 120000,
+                "best_for": "Tự do di chuyển dọc cung đường biển Trần Phú hoặc chạy ra cảng tàu/ga cáp treo.",
+                "saving_tip": "Giá tính theo ngày, là phương án kinh tế nhất khi cần kết hợp nhiều điểm nội thành và ngoại ô trong ngày."
+            },
+            {
+                "id": "transport_grab_bike",
+                "name": "GrabBike / Xanh SM Bike",
+                "estimated_cost_per_trip": 30000,
+                "best_for": "Nhanh, tiện khi nhóm ít người di chuyển ngắn giữa các bãi tắm và quán ăn nội đô.",
+                "saving_tip": "Nếu thâm hụt ngân sách, chuyển sang đi bộ ven biển hoặc gom các điểm cùng trục đường Trần Phú."
+            },
+            {
+                "id": "transport_walk",
+                "name": "Đi bộ",
+                "estimated_cost_per_trip": 0,
+                "best_for": "Dạo quảng trường 2/4, chợ đêm Nha Trang hoặc dọc bờ biển bãi Trần Phú.",
+                "saving_tip": "Tận dụng đi bộ thư giãn ở khu vực trung tâm để cắt giảm chi phí taxi."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_kh_001",
+                "name": "Công viên giải trí VinWonders Nha Trang (Đảo Hòn Tre)",
+                "type": "tham_quan",
+                "area": "Vĩnh Nguyên",
+                "average_cost_per_person": 950000,
+                "estimated_duration_minutes": 360,
+                "recommended_time_slot": "08:30-15:30",
+                "tags": [
+                    "vui chơi",
+                    "cáp treo",
+                    "chi phí rất cao",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Vinpearl Harbour (Khu phố thương mại đảo Hòn Tre)",
+                    "average_cost_per_person": 200000,
+                    "estimated_saving_per_person": 750000,
+                    "note": "Nếu không vào khu vui chơi VinWonders, có thể chỉ mua vé cáp treo khứ hồi sang khu bến cảng mua sắm/check-in để tiết kiệm rất nhiều chi phí."
+                },
+                "saving_tips": [
+                    "Nếu đây là điểm bắt buộc phải đi, hệ thống cần giảm tối đa chi phí ăn uống và đi lại của các chặng khác trong ngày."
+                ]
+            },
+            {
+                "id": "place_kh_002",
+                "name": "Khu phố thương mại Vinpearl Harbour Nha Trang",
+                "type": "tham_quan",
+                "area": "Vĩnh Nguyên",
+                "average_cost_per_person": 200000,
+                "estimated_duration_minutes": 150,
+                "recommended_time_slot": "16:00-18:30",
+                "tags": [
+                    "check-in",
+                    "mua sắm",
+                    "view biển",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chợ đêm Nha Trang & Quảng trường 2/4",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 200000,
+                    "note": "Lựa chọn thay thế hoàn toàn miễn phí vé nếu ngân sách tour 1 ngày cực kỳ eo hẹp."
+                },
+                "saving_tips": [
+                    "Vé cáp treo sang đây thường có ưu đãi theo khung giờ, hãy săn deal muộn hoặc đi bộ tham quan tự do không cần ngồi nhà hàng đắt đỏ."
+                ]
+            },
+            {
+                "id": "place_kh_003",
+                "name": "Vinpearl Resort & Spa Nha Trang Bay (Check-in nghỉ dưỡng)",
+                "type": "tham_quan",
+                "area": "Vĩnh Nguyên",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "17:00-18:00",
+                "tags": [
+                    "sang chảnh",
+                    "view biển",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Chỉ áp dụng check-in phong cảnh bãi biển biệt thự từ phía ngoài bờ vịnh hoặc bến cảng, không sử dụng dịch vụ lưu trú."
+                },
+                "saving_tips": [
+                    "Tận dụng bối cảnh hoàng hôn vịnh Nha Trang nhìn từ khu vực Vinpearl Harbour hướng về phía các resort để có ảnh đẹp miễn phí."
+                ]
+            },
+            {
+                "id": "place_kh_004",
+                "name": "Tháp Bà Po Nagar",
+                "type": "tham_quan",
+                "area": "Vĩnh Phước",
+                "average_cost_per_person": 30000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "08:30-09:30",
+                "tags": [
+                    "lịch sử",
+                    "văn hóa",
+                    "giá rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chùa Long Sơn",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 30000,
+                    "note": "Chùa Long Sơn miễn phí vé vào cửa, có tượng Kim Thân Phật Tổ khổng lồ."
+                },
+                "saving_tips": [
+                    "Giá vé rất rẻ, nên giữ lại trong tour để trải nghiệm văn hóa Chăm Pa đặc trưng."
+                ]
+            },
+            {
+                "id": "place_kh_005",
+                "name": "Bãi biển Trần Phú (Bãi tắm công cộng)",
+                "type": "tham_quan",
+                "area": "Lộc Thọ",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "16:30-17:30",
+                "tags": [
+                    "miễn phí",
+                    "tắm biển",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Địa điểm công cộng, thích hợp tuyệt đối cho du lịch tự túc tiết kiệm."
+                },
+                "saving_tips": [
+                    "Tránh sử dụng dịch vụ thuê phao, thuê ghế dù sát biển của các nhà hàng lớn nếu muốn siết chặt chi phí."
+                ]
+            },
+            {
+                "id": "place_kh_006",
+                "name": "Bún sứa / Bún chả cá Nha Trang",
+                "type": "an_sang",
+                "area": "Vạn Thạnh",
+                "average_cost_per_person": 35000,
+                "estimated_duration_minutes": 35,
+                "recommended_time_slot": "07:00-07:35",
+                "tags": [
+                    "ăn sáng",
+                    "đặc sản",
+                    "ngon bổ rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì chả cá Nha Trang",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 15000,
+                    "note": "Món ăn sáng đường phố nhanh gọn, siêu rẻ."
+                },
+                "saving_tips": [
+                    "Ăn tại các quán bình dân khu vực chợ Đầm hoặc đường Tháp Bà thay vì các nhà hàng trung tâm khách du lịch đông đúc."
+                ]
+            },
+            {
+                "id": "place_kh_007",
+                "name": "Nem nướng Nha Trang (Quán Đặng Văn Quyên hoặc Vũ Thành An)",
+                "type": "an_trua",
+                "area": "Xương Huân",
+                "average_cost_per_person": 60000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "11:45-12:30",
+                "tags": [
+                    "đặc sản",
+                    "ăn trưa",
+                    "giá bình dân"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh căn hải sản bình dân",
+                    "average_cost_per_person": 45000,
+                    "estimated_saving_per_person": 15000,
+                    "note": "Bánh căn vỉa hè cũng là một trải nghiệm ẩm thực giá rẻ rất đáng thử."
+                },
+                "saving_tips": [
+                    "Một suất nem nướng rất đầy đặn, nhóm đông người có thể gọi bớt số suất lại và gọi thêm bánh tráng/rau để tối ưu chi phí."
+                ]
+            },
+            {
+                "id": "place_kh_008",
+                "name": "Hải sản tươi sống làng chài / Tháp Bà buổi tối",
+                "type": "an_toi",
+                "area": "Vĩnh Phước",
+                "average_cost_per_person": 250000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "19:00-20:30",
+                "tags": [
+                    "hải sản",
+                    "ăn tối",
+                    "giá cao"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Cơm gà Nha Trang (Quán Trâm Anh)",
+                    "average_cost_per_person": 50000,
+                    "estimated_saving_per_person": 200000,
+                    "note": "Lựa chọn thay thế hoàn hảo nếu tổng chi phí trong ngày đang vượt ngân sách nặng do đã mua vé VinWonders."
+                },
+                "saving_tips": [
+                    "Chọn các quán hải sản dọc đường bờ kè Tháp Bà hoặc bờ kè Hà Ra, hỏi và chốt giá cân tươi rõ ràng trước khi chế biến."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_kh_001",
+                "name": "Tour Nha Trang check-in Vinpearl Harbour tiết kiệm",
+                "number_of_people": 2,
+                "budget_cap": 1000000,
+                "required_place_ids": [
+                    "place_kh_002",
+                    "place_kh_004",
+                    "place_kh_005"
+                ],
+                "optional_place_ids": [
+                    "place_kh_006",
+                    "place_kh_007",
+                    "place_kh_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 150000
+                },
+                "expected_behavior": "Thiết kế tour đi Tháp Bà buổi sáng, ăn nem nướng, chiều tối đi cáp treo sang Vinpearl Harbour vui chơi, tổng chi phí kiểm soát tốt dưới budget."
+            },
+            {
+                "case_id": "error_path_kh_001",
+                "name": "Thâm hụt ngân sách nghiêm trọng do combo VinWonders",
+                "number_of_people": 2,
+                "budget_cap": 1200000,
+                "required_place_ids": [
+                    "place_kh_001"
+                ],
+                "optional_place_ids": [
+                    "place_kh_006",
+                    "place_kh_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 160000
+                },
+                "expected_behavior": "Giữ nguyên địa điểm VinWonders bắt buộc, đưa ra cảnh báo thâm hụt tài chính (vì riêng tiền vé 2 người đã là 1.900.000đ). Đề xuất cắt bỏ bữa tối hải sản đắt đỏ sang ăn cơm gà bình dân để kéo tổng chi phí xuống thấp nhất có thể."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Kiên Giang",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Phú Quốc - Kiên Giang.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy Phú Quốc",
+                "estimated_cost_per_trip": 150000,
+                "best_for": "Tự do khám phá giữa các khu vực cách xa nhau như Thị trấn Dương Đông và Bắc Đảo (Vinpearl) hoặc Nam Đảo.",
+                "saving_tip": "Phú Quốc có khoảng cách giữa các khu du lịch rất lớn (30-40km), thuê xe máy theo ngày là giải pháp tiết kiệm chi phí nhất."
+            },
+            {
+                "id": "transport_vin_bus",
+                "name": "Xe buýt điện VinBus",
+                "estimated_cost_per_trip": 0,
+                "best_for": "Di chuyển từ sân bay hoặc trung tâm Dương Đông lên siêu quần thể Phú Quốc United Center (Bắc Đảo).",
+                "saving_tip": "Tận dụng tuyến VinBus miễn phí chạy liên tục ngày đêm để cắt giảm 100% chi phí di chuyển lên Bắc Đảo."
+            },
+            {
+                "id": "transport_grab_car",
+                "name": "Grab Car / Taxi",
+                "estimated_cost_per_trip": 250000,
+                "best_for": "Phù hợp cho nhóm gia đình, đi chặng dài an toàn, tránh nắng mưa.",
+                "saving_tip": "Nếu ngân sách thâm hụt, hãy chuyển ngay sang đi VinBus hoặc thuê xe máy tự lái."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_kg_001",
+                "name": "Công viên chủ đề VinWonders Phú Quốc",
+                "type": "tham_quan",
+                "area": "Gành Dầu (Bắc Đảo)",
+                "average_cost_per_person": 950000,
+                "estimated_duration_minutes": 300,
+                "recommended_time_slot": "09:00-14:00",
+                "tags": [
+                    "vui chơi",
+                    "thủy cung",
+                    "chi phí rất cao",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Grand World Phú Quốc (Thành phố không ngủ)",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 950000,
+                    "note": "Nếu không vào khu trò chơi VinWonders, có thể chỉ vui chơi tự do và check-in miễn phí tại khu phố Grand World."
+                },
+                "saving_tips": [
+                    "Mua vé combo gồm cả VinWonders và Safari để có mức chiết khấu tốt hơn nếu dự định đi cả hai điểm."
+                ]
+            },
+            {
+                "id": "place_kg_002",
+                "name": "Công viên chăm sóc & bảo tồn động vật Vinpearl Safari Phú Quốc",
+                "type": "tham_quan",
+                "area": "Gành Dầu (Bắc Đảo)",
+                "average_cost_per_person": 650000,
+                "estimated_duration_minutes": 180,
+                "recommended_time_slot": "09:00-12:00",
+                "tags": [
+                    "vườn thú",
+                    "trải nghiệm",
+                    "chi phí cao",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Rạch Vẹm (Vương quốc sao biển)",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 650000,
+                    "note": "Điểm tham quan thiên nhiên hoang sơ miễn phí vé cổng ở phía Bắc Đảo."
+                },
+                "saving_tips": [
+                    "Nên đi Safari vào buổi sáng sớm khi thời tiết mát mẻ, động vật hoạt động nhiều và kịp tiến độ lịch trình."
+                ]
+            },
+            {
+                "id": "place_kg_003",
+                "name": "Grand World Phú Quốc & Show Sắc màu Venice",
+                "type": "tham_quan",
+                "area": "Gành Dầu (Bắc Đảo)",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 180,
+                "recommended_time_slot": "18:00-22:00",
+                "tags": [
+                    "miễn phí",
+                    "check-in",
+                    "show diễn",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Vào cổng tự do, xem show Sắc màu Venice trên hồ hoàn toàn miễn phí lúc 22:00."
+                },
+                "saving_tips": [
+                    "Có thể tự do đi bộ chụp ảnh kiến trúc Ý, công trình tre. Chỉ mất phí nếu trải nghiệm đi thuyền Gondola trên kênh đào (khoảng 200.000đ) hoặc xem show Tinh hoa Việt Nam."
+                ]
+            },
+            {
+                "id": "place_kg_004",
+                "name": "Vinpearl Resort & Spa Phú Quốc (Bãi Dài)",
+                "type": "tham_quan",
+                "area": "Gành Dầu (Bắc Đảo)",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "16:30-17:30",
+                "tags": [
+                    "sang chảnh",
+                    "ngắm hoàng hôn",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Sunset Sanato hoặc Dinh Cậu",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Dinh Cậu là điểm ngắm hoàng hôn hoàn toàn miễn phí tại trung tâm Dương Đông."
+                },
+                "saving_tips": [
+                    "Dành cho khách tham quan check-in hoàng hôn bãi biển phía ngoài resort, không sử dụng dịch vụ phòng nghỉ hoặc buffet đắt tiền bên trong."
+                ]
+            },
+            {
+                "id": "place_kg_005",
+                "name": "Bãi Sao Phú Quốc",
+                "type": "tham_quan",
+                "area": "An Thới (Nam Đảo)",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 120,
+                "recommended_time_slot": "14:00-16:00",
+                "tags": [
+                    "miễn phí",
+                    "tắm biển",
+                    "cát trắng"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Bãi biển tự nhiên miễn phí, một trong những bãi biển đẹp nhất Phú Quốc."
+                },
+                "saving_tips": [
+                    "Hạn chế thuê võng, ghế ngồi hoặc tắm tráng nước ngọt tại các nhà hàng kinh doanh bãi tắm nếu muốn tiết kiệm tiền."
+                ]
+            },
+            {
+                "id": "place_kg_006",
+                "name": "Bún quậy Kiến Xây (Cơ sở trung tâm)",
+                "type": "an_sang",
+                "area": "Dương Đông",
+                "average_cost_per_person": 65000,
+                "estimated_duration_minutes": 40,
+                "recommended_time_slot": "07:30-08:10",
+                "tags": [
+                    "ăn sáng",
+                    "đặc sản",
+                    "trải nghiệm"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh canh chả cá thu bình dân",
+                    "average_cost_per_person": 35000,
+                    "estimated_saving_per_person": 30000,
+                    "note": "Món ăn sáng bình dân quen thuộc của người dân đảo."
+                },
+                "saving_tips": [
+                    "Gọi tô mớ/tô thường thay vì tô đặc biệt đầy đủ mực lớn để giữ ngân sách ăn sáng dưới 70.000đ."
+                ]
+            },
+            {
+                "id": "place_kg_007",
+                "name": "Gỏi cá trích & Hải sản bình dân - Quán Việt",
+                "type": "an_trua",
+                "area": "Dương Đông",
+                "average_cost_per_person": 150000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "12:00-13:00",
+                "tags": [
+                    "đặc sản",
+                    "ăn trưa",
+                    "giá vừa phải"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Cơm tấm / Cơm bình dân tại Dương Đông",
+                    "average_cost_per_person": 40000,
+                    "estimated_saving_per_person": 110000,
+                    "note": "Cắt giảm đặc sản nếu ngân sách tổng thể đang bị thâm hụt nặng."
+                },
+                "saving_tips": [
+                    "Gỏi cá trích có mức giá khá bình dân và dễ ăn, đi nhóm đông người chia sẻ chi phí sẽ rất tiết kiệm."
+                ]
+            },
+            {
+                "id": "place_kg_008",
+                "name": "Hải sản tươi sống Chợ đêm Phú Quốc",
+                "type": "an_toi",
+                "area": "Dương Đông",
+                "average_cost_per_person": 300000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "19:00-20:30",
+                "tags": [
+                    "hải sản",
+                    "ăn tối",
+                    "chi phí cao"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Ăn vặt tại Grand World hoặc bánh mì, bún riêu trung tâm",
+                    "average_cost_per_person": 60000,
+                    "estimated_saving_per_person": 240000,
+                    "note": "Đề xuất tối ưu khi người dùng đã tiêu tốn quá nhiều ngân sách cho vé VinWonders ban ngày."
+                },
+                "saving_tips": [
+                    "Chợ đêm thường có giá du lịch cao, hãy đi lùi ra các khu quán ghẹ bến Hàm Ninh bình dân hoặc check giá, mặc cả kỹ trước khi chọn món."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_kg_001",
+                "name": "Tour Phú Quốc khám phá Bắc Đảo miễn phí kết hợp VinBus",
+                "number_of_people": 2,
+                "budget_cap": 800000,
+                "required_place_ids": [
+                    "place_kg_003",
+                    "place_kg_004"
+                ],
+                "optional_place_ids": [
+                    "place_kg_006",
+                    "place_kg_007"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_vin_bus",
+                    "estimated_total_transport_cost": 0
+                },
+                "expected_behavior": "Xây dựng tour di chuyển hoàn toàn bằng VinBus miễn phí, ăn sáng bún quậy, trưa ăn gỏi cá trích, chiều tối check-in chụp ảnh tự do tại Vinpearl Resort và xem show Venice tại Grand World. Tổng chi phí cực thấp, dư giả budget."
+            },
+            {
+                "case_id": "error_path_kg_001",
+                "name": "Vượt ngân sách do chọn khu vui chơi lớn VinWonders",
+                "number_of_people": 2,
+                "budget_cap": 1200000,
+                "required_place_ids": [
+                    "place_kg_001"
+                ],
+                "optional_place_ids": [
+                    "place_kg_006",
+                    "place_kg_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 180000
+                },
+                "expected_behavior": "Giữ nguyên vé VinWonders Phú Quốc bắt buộc theo quy định, báo cáo số tiền vượt chi do tiền vé quá cao. Đưa ra gợi ý cắt bỏ hoàn toàn bữa tối hải sản chợ đêm đắt đỏ, thay thế bằng các món ăn vặt nhẹ nhàng để giảm thiểu gánh nặng tài chính."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Quảng Ninh",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Quảng Ninh.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_taxi_grab",
+                "name": "Taxi / Grab Car",
+                "estimated_cost_per_trip": 80000,
+                "best_for": "Tiện lợi, phù hợp di chuyển nhóm đông giữa các khu vực Hòn Gai và Bãi Cháy.",
+                "saving_tip": "Nếu vượt ngân sách, hãy chuyển sang đi xe buýt điện hoặc xe máy."
+            },
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy",
+                "estimated_cost_per_trip": 150000,
+                "best_for": "Tự do di chuyển cả ngày, tối ưu chi phí tốt nhất cho nhóm 1-2 người.",
+                "saving_tip": "Giá thuê tính theo ngày, đi càng nhiều điểm càng tiết kiệm so với đặt từng chặng Grab."
+            },
+            {
+                "id": "transport_electric_bus",
+                "name": "Xe buýt điện du lịch",
+                "estimated_cost_per_trip": 20000,
+                "best_for": "Di chuyển ngắm cảnh quanh bờ biển Bãi Cháy hoặc khu phố cổ.",
+                "saving_tip": "Phù hợp cho các chặng ngắn nội khu du lịch."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_qn_001",
+                "name": "VinWonders Hạ Long (Sun World cũ) - Cáp treo Nữ Hoàng",
+                "type": "tham_quan",
+                "area": "Bãi Cháy",
+                "average_cost_per_person": 350000,
+                "estimated_duration_minutes": 180,
+                "recommended_time_slot": "14:00-17:00",
+                "tags": [
+                    "vui chơi",
+                    "view biển",
+                    "chi phí cao",
+                    "Vin_Sun_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Ngắm hoàng hôn tại Bãi biển Bãi Cháy công cộng",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 350000,
+                    "note": "Nếu đây là địa điểm bắt buộc, giữ nguyên và cảnh báo vượt ngân sách."
+                },
+                "saving_tips": [
+                    "Mua vé combo trước qua app để săn deal giảm giá.",
+                    "Ăn nhẹ bên ngoài trước khi vào khu vui chơi để tránh mua đồ ăn giá cao."
+                ]
+            },
+            {
+                "id": "place_qn_002",
+                "name": "Vinpearl Resort & Spa Hạ Long (Đảo Rêu)",
+                "type": "tham_quan",
+                "area": "Bãi Cháy",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "17:30-18:30",
+                "tags": [
+                    "check-in",
+                    "sang chảnh",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Chụp ảnh check-in từ khu vực bến tàu (cảng tàu khách quốc tế) nhìn ra đảo hoàn toàn miễn phí."
+                },
+                "saving_tips": [
+                    "Chỉ check-in khu vực bến du thuyền hướng đảo Rêu nếu không lưu trú hoặc sử dụng dịch vụ buffet/spa bên trong resort."
+                ]
+            },
+            {
+                "id": "place_qn_003",
+                "name": "Trung tâm thương mại Vincom Plaza Hạ Long",
+                "type": "cafe",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 50000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "10:30-12:00",
+                "tags": [
+                    "mua sắm",
+                    "giải trí",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chợ Hạ Long 1",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 30000,
+                    "note": "Chợ truyền thống ngay gần đó, phù hợp trải nghiệm địa phương chi phí thấp."
+                },
+                "saving_tips": [
+                    "Vào trung tâm thương mại chủ yếu để tránh nóng giờ trưa, uống cà phê phân khúc vừa phải."
+                ]
+            },
+            {
+                "id": "place_qn_004",
+                "name": "Bảo tàng Quảng Ninh",
+                "type": "tham_quan",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "08:30-10:00",
+                "tags": [
+                    "kiến trúc",
+                    "văn hóa",
+                    "giá rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chụp ảnh check-in bên ngoài khối kính đen bảo tàng",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 40000,
+                    "note": "Kiến trúc bên ngoài rất đẹp, chụp ảnh tự do không tốn phí."
+                },
+                "saving_tips": [
+                    "Mang theo thẻ học sinh/sinh viên để được giảm 50% giá vé vào cổng."
+                ]
+            },
+            {
+                "id": "place_qn_005",
+                "name": "Cung Quy Hoạch, Hội Chợ Và Triển Lãm Quảng Ninh",
+                "type": "tham_quan",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "10:00-10:45",
+                "tags": [
+                    "miễn phí",
+                    "check-in",
+                    "kiến trúc"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Công trình biểu tượng hình cá heo hoàn toàn miễn phí vé vào."
+                },
+                "saving_tips": [
+                    "Nằm ngay cạnh Bảo tàng Quảng Ninh, nên đi bộ qua để tiết kiệm 100% tiền di chuyển."
+                ]
+            },
+            {
+                "id": "place_qn_006",
+                "name": "Bún bề bề bình dân khu Hòn Gai",
+                "type": "an_sang",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 40,
+                "recommended_time_slot": "07:30-08:10",
+                "tags": [
+                    "đặc sản",
+                    "ăn sáng",
+                    "giá tốt"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì patê cột đèn Hạ Long",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 20000,
+                    "note": "Lựa chọn thay thế siêu tiết kiệm mà vẫn chuẩn vị địa phương."
+                },
+                "saving_tips": [
+                    "Tránh ăn bún bề bề tại các nhà hàng mặt đường lớn khu Bãi Cháy để không bị đẩy giá."
+                ]
+            },
+            {
+                "id": "place_qn_007",
+                "name": "Nhà hàng Hải sản bình dân - Khu Cái Dăm",
+                "type": "an_trua",
+                "area": "Bãi Cháy",
+                "average_cost_per_person": 200000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "12:15-13:15",
+                "tags": [
+                    "hải sản",
+                    "ăn trưa",
+                    "giá vừa phải"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Cơm bình dân / Bún cù kỳ",
+                    "average_cost_per_person": 50000,
+                    "estimated_saving_per_person": 150000,
+                    "note": "Đổi sang món ăn cá nhân nếu tổng ngân sách tour đang bị thâm hụt."
+                },
+                "saving_tips": [
+                    "Hỏi giá và cân hải sản tươi sống trước khi chế biến.",
+                    "Đi nhóm đông người chia hóa đơn hải sản sẽ rẻ hơn đi 1-2 người."
+                ]
+            },
+            {
+                "id": "place_qn_008",
+                "name": "Sữa chua trân châu Tuấn Liên",
+                "type": "cafe",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 35000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "20:30-21:15",
+                "tags": [
+                    "ăn vặt",
+                    "đặc sản",
+                    "ngon rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 35000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Mức giá rất rẻ cho một món đặc sản tráng miệng nổi tiếng."
+                },
+                "saving_tips": [
+                    "Nên kết hợp đi dạo ngắm biển đường Trần Quốc Nghiễn rồi ghé quán ăn tối muộn."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_qn_001",
+                "name": "Lịch trình Quảng Ninh tối ưu ngân sách",
+                "number_of_people": 2,
+                "budget_cap": 1200000,
+                "required_place_ids": [
+                    "place_qn_004",
+                    "place_qn_005",
+                    "place_qn_002"
+                ],
+                "optional_place_ids": [
+                    "place_qn_006",
+                    "place_qn_007",
+                    "place_qn_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 170000
+                },
+                "expected_behavior": "Tạo lịch trình tham quan Hòn Gai - Bãi Cháy bằng xe máy, báo cáo chi phí tối ưu trong tầm ngân sách."
+            },
+            {
+                "case_id": "error_path_qn_001",
+                "name": "Tổ hợp vui chơi lớn vượt ngân sách nghiêm ngặt",
+                "number_of_people": 2,
+                "budget_cap": 800000,
+                "required_place_ids": [
+                    "place_qn_001",
+                    "place_qn_007"
+                ],
+                "optional_place_ids": [
+                    "place_qn_006",
+                    "place_qn_003"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_taxi_grab",
+                    "estimated_total_transport_cost": 240000
+                },
+                "expected_behavior": "Giữ nguyên vé VinWonders (Sun World) và nhà hàng hải sản theo đúng rule bắt buộc, đưa ra cảnh báo thâm hụt ngân sách, khuyến nghị đổi Taxi sang thuê xe máy và giảm chi phí ăn sáng/trưa."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Quảng Nam",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Hội An - Quảng Nam.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy Hội An",
+                "estimated_cost_per_trip": 120000,
+                "best_for": "Cực kỳ tiết kiệm và cơ động khi di chuyển từ trung tâm Phố cổ ra khu Nam Hội An (VinWonders) cách khoảng 15km.",
+                "saving_tip": "Giá tính theo ngày, tối ưu chi phí hơn rất nhiều so với việc bắt taxi chạy đường dài nối giữa các điểm di sản và khu nghỉ dưỡng."
+            },
+            {
+                "id": "transport_bicycle",
+                "name": "Xe đạp",
+                "estimated_cost_per_trip": 30000,
+                "best_for": "Rất phù hợp để thong dong ngắm cảnh nội khu Phố cổ Hội An, len lỏi vào các ngõ ngách hoặc ra đồng lúa An Mỹ.",
+                "saving_tip": "Nhiều homestay/khách sạn tại Hội An cho mượn xe đạp miễn phí. Hãy tận dụng để cắt giảm chi phí đi lại chặng ngắn."
+            },
+            {
+                "id": "transport_grab_car",
+                "name": "Grab Car / Taxi",
+                "estimated_cost_per_trip": 220000,
+                "best_for": "Phù hợp cho nhóm đi đông hoặc gia đình khi cần di chuyển từ Đà Nẵng vào Quảng Nam hoặc ra khu vui chơi xa.",
+                "saving_tip": "Nếu ngân sách thắt chặt, hãy chuyển sang thuê xe máy hoặc tìm các tuyến xe buýt đưa đón miễn phí của VinWonders Nam Hội An."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_qn_001",
+                "name": "Tổ hợp giải trí VinWonders Nam Hội An",
+                "type": "tham_quan",
+                "area": "Thăng Bình",
+                "average_cost_per_person": 650000,
+                "estimated_duration_minutes": 300,
+                "recommended_time_slot": "09:00-15:00",
+                "tags": [
+                    "vui chơi",
+                    "văn hóa",
+                    "safari đường thủy",
+                    "chi phí rất cao",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Phố cổ Hội An (Tham quan tự do)",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 650000,
+                    "note": "Nếu không vào khu vui chơi có bán vé, có thể dành trọn thời gian trải nghiệm không gian di sản miễn phí."
+                },
+                "saving_tips": [
+                    "Săn các chương trình khuyến mãi vé sau 15h00 hoặc combo ẩm thực đi kèm để giảm bớt chi phí ăn uống inside công viên."
+                ]
+            },
+            {
+                "id": "place_qn_002",
+                "name": "Vinpearl Resort & Golf Nam Hội An (Khu check-in bãi biển)",
+                "type": "tham_quan",
+                "area": "Thăng Bình",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "16:00-17:00",
+                "tags": [
+                    "sang chảnh",
+                    "view biển",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bãi biển An Bàng",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Bãi biển công cộng tuyệt đẹp gần Phố cổ, hoàn toàn miễn phí."
+                },
+                "saving_tips": [
+                    "Chỉ áp dụng chụp ảnh bối cảnh kiến trúc hiện đại, sang trọng từ phía ngoài hoặc khu dịch vụ công cộng, không đặt phòng lưu trú cao cấp để bảo toàn ngân sách."
+                ]
+            },
+            {
+                "id": "place_qn_003",
+                "name": "Phố cổ Hội An (Check-in lồng đèn tối)",
+                "type": "tham_quan",
+                "area": "Minh An",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 120,
+                "recommended_time_slot": "18:00-20:00",
+                "tags": [
+                    "miễn phí",
+                    "di sản",
+                    "đi bộ",
+                    "check-in"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Đi bộ ngắm phố đèn lồng và dòng sông Hoài thơ mộng là trải nghiệm không tốn phí, cực kỳ phù hợp cho mọi ngân sách."
+                },
+                "saving_tips": [
+                    "Vé tham quan các nhà cổ/chùa cổ nội khu là tự nguyện trừ khi muốn vào sâu bên trong. Hạn chế đi thuyền thả hoa đăng nếu giá bị đẩy lên quá cao vào ngày rằm."
+                ]
+            },
+            {
+                "id": "place_qn_004",
+                "name": "Thánh địa Mỹ Sơn",
+                "type": "tham_quan",
+                "area": "Duy Xuyên",
+                "average_cost_per_person": 150000,
+                "estimated_duration_minutes": 120,
+                "recommended_time_slot": "08:00-10:00",
+                "tags": [
+                    "di sản",
+                    "lịch sử",
+                    "kiến trúc"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Làng gốm Thanh Hà hoặc Làng rau Trà Quế",
+                    "average_cost_per_person": 35000,
+                    "estimated_saving_per_person": 115000,
+                    "note": "Các làng nghề truyền thống ngay sát trung tâm Hội An có giá vé rẻ hơn rất nhiều."
+                },
+                "saving_tips": [
+                    "Mỹ Sơn cách Hội An khá xa (khoảng 40km), nếu giữ địa điểm này bắt buộc phải đi bằng xe máy tự lái để tránh chi phí taxi khổng lồ."
+                ]
+            },
+            {
+                "id": "place_qn_005",
+                "name": "Nước mót Hội An (Đường Trần Phú)",
+                "type": "cafe",
+                "area": "Minh An",
+                "average_cost_per_person": 15000,
+                "estimated_duration_minutes": 20,
+                "recommended_time_slot": "17:30-17:50",
+                "tags": [
+                    "đặc sản",
+                    "ăn vặt",
+                    "siêu rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 15000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Thức uống thảo mộc đặc trưng với giá siêu hạt dẻ, không thể bỏ qua."
+                },
+                "saving_tips": [
+                    "Mua cầm tay đi bộ ngắm phố cổ, vừa ngon, rẻ lại vừa là đạo cụ check-in lên ảnh rất thơ."
+                ]
+            },
+            {
+                "id": "place_qn_006",
+                "name": "Bánh mì Phượng hoặc Bánh mì Madam Khánh",
+                "type": "an_sang",
+                "area": "Cẩm Châu",
+                "average_cost_per_person": 35000,
+                "estimated_duration_minutes": 30,
+                "recommended_time_slot": "07:30-08:00",
+                "tags": [
+                    "ăn sáng",
+                    "nổi tiếng",
+                    "ngon bổ rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Xôi hoặc bánh bèo bình dân chợ Hội An",
+                    "average_cost_per_person": 15000,
+                    "estimated_saving_per_person": 20000,
+                    "note": "Phương án ăn sáng thuần địa phương tối ưu ngân sách."
+                },
+                "saving_tips": [
+                    "Nên mua mang đi (take away) để tránh xếp hàng chờ bàn lâu vào giờ cao điểm."
+                ]
+            },
+            {
+                "id": "place_qn_007",
+                "name": "Cơm gà Hội An (Quán Bà Buội hoặc Ty)",
+                "type": "an_trua",
+                "area": "Minh An",
+                "average_cost_per_person": 60000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "12:00-12:45",
+                "tags": [
+                    "đặc sản",
+                    "ăn trưa",
+                    "nổi tiếng"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Khu ẩm thực Chợ Hội An",
+                    "average_cost_per_person": 35000,
+                    "estimated_saving_per_person": 25000,
+                    "note": "Chợ Hội An có đầy đủ cơm gà, cao lầu, mì Quảng suất nhỏ với giá cực mềm cho dân phượt."
+                },
+                "saving_tips": [
+                    "Nếu ngân sách trong ngày đang cạn kiệt do tiền vé VinWonders, di chuyển thẳng vào chợ để ăn trưa bình dân."
+                ]
+            },
+            {
+                "id": "place_qn_008",
+                "name": "Cao lầu Hội An thanh mát buổi tối",
+                "type": "an_toi",
+                "area": "Minh An",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "18:30-19:15",
+                "tags": [
+                    "đặc sản",
+                    "ăn tối",
+                    "giá tốt"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 40000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Món ăn đặc sản mang tính biểu tượng nhưng giá lại rất bình dân."
+                },
+                "saving_tips": [
+                    "Chọn các quán ven sông hoặc trong ngõ nhỏ Phố cổ để thưởng thức hương vị nguyên bản mà không lo bị đội giá dịch vụ du lịch."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_qn_001",
+                "name": "Tour Hội An hoài cổ tinh gọn chi phí",
+                "number_of_people": 2,
+                "budget_cap": 600000,
+                "required_place_ids": [
+                    "place_qn_003",
+                    "place_qn_005"
+                ],
+                "optional_place_ids": [
+                    "place_qn_006",
+                    "place_qn_007",
+                    "place_qn_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_bicycle",
+                    "estimated_total_transport_cost": 60000
+                },
+                "expected_behavior": "Xây dựng lịch trình đạp xe quanh phố cổ, ăn các món đặc sản bình dân, check-in lồng đèn tối. Tổng chi phí cực kỳ tối ưu và nằm gọn trong ngân sách."
+            },
+            {
+                "case_id": "error_path_qn_001",
+                "name": "Vượt ngân sách do gộp tổ hợp giải trí lớn",
+                "number_of_people": 2,
+                "budget_cap": 1000000,
+                "required_place_ids": [
+                    "place_qn_001"
+                ],
+                "optional_place_ids": [
+                    "place_qn_006",
+                    "place_qn_007",
+                    "place_qn_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 150000
+                },
+                "expected_behavior": "Giữ nguyên địa điểm VinWonders Nam Hội An vì có thuộc tính bắt buộc, đồng thời tính toán tổng chi phí và đưa ra cảnh báo vượt ngân sách nghiêm ngặt. Hệ thống sẽ tự động khuyên khách đổi bữa trưa cơm gà nhà hàng sang ăn tại khu ẩm thực Chợ Hội An để giảm thiểu thâm hụt tài chính."
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "project_name": "AI Travel Budget Planner",
+            "city": "Quảng Ninh",
+            "currency": "VND",
+            "version": "1.0",
+            "description": "Mock data cho prototype trợ lý thiết kế tour 1 ngày theo ngân sách nghiêm ngặt tại Quảng Ninh.",
+            "important_rule": "Không tự động xóa các địa điểm bắt buộc của người dùng. Nếu vượt ngân sách, giữ nguyên địa điểm và cảnh báo số tiền vượt."
+        },
+        "budget_planning_rules": {
+            "budget_status": {
+                "within_budget": "Tổng chi phí <= ngân sách người dùng",
+                "over_budget": "Tổng chi phí > ngân sách người dùng"
+            },
+            "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+            "suggestion_policy": "Khi vượt ngân sách, ưu tiên gợi ý giảm chi phí di chuyển, đổi quán ăn rẻ hơn, hoặc thay hoạt động phụ; không tự ý xóa địa điểm bắt buộc.",
+            "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+        },
+        "transport_options": [
+            {
+                "id": "transport_taxi_grab",
+                "name": "Taxi / Grab Car",
+                "estimated_cost_per_trip": 80000,
+                "best_for": "Tiện lợi, phù hợp di chuyển nhóm đông giữa các khu vực Hòn Gai và Bãi Cháy.",
+                "saving_tip": "Nếu vượt ngân sách, hãy chuyển sang đi xe buýt điện hoặc xe máy."
+            },
+            {
+                "id": "transport_rental_bike",
+                "name": "Thuê xe máy",
+                "estimated_cost_per_trip": 150000,
+                "best_for": "Tự do di chuyển cả ngày, tối ưu chi phí tốt nhất cho nhóm 1-2 người.",
+                "saving_tip": "Giá thuê tính theo ngày, đi càng nhiều điểm càng tiết kiệm so với đặt từng chặng Grab."
+            },
+            {
+                "id": "transport_electric_bus",
+                "name": "Xe buýt điện du lịch",
+                "estimated_cost_per_trip": 20000,
+                "best_for": "Di chuyển ngắm cảnh quanh bờ biển Bãi Cháy hoặc khu phố cổ.",
+                "saving_tip": "Phù hợp cho các chặng ngắn nội khu du lịch."
+            }
+        ],
+        "places": [
+            {
+                "id": "place_qn_001",
+                "name": "VinWonders Hạ Long (Sun World cũ) - Cáp treo Nữ Hoàng",
+                "type": "tham_quan",
+                "area": "Bãi Cháy",
+                "average_cost_per_person": 350000,
+                "estimated_duration_minutes": 180,
+                "recommended_time_slot": "14:00-17:00",
+                "tags": [
+                    "vui chơi",
+                    "view biển",
+                    "chi phí cao",
+                    "Vin_Sun_ecosystem"
+                ],
+                "is_good_for_budget_travelers": false,
+                "cheaper_alternative": {
+                    "name": "Ngắm hoàng hôn tại Bãi biển Bãi Cháy công cộng",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 350000,
+                    "note": "Nếu đây là địa điểm bắt buộc, giữ nguyên và cảnh báo vượt ngân sách."
+                },
+                "saving_tips": [
+                    "Mua vé combo trước qua app để săn deal giảm giá.",
+                    "Ăn nhẹ bên ngoài trước khi vào khu vui chơi để tránh mua đồ ăn giá cao."
+                ]
+            },
+            {
+                "id": "place_qn_002",
+                "name": "Vinpearl Resort & Spa Hạ Long (Đảo Rêu)",
+                "type": "tham_quan",
+                "area": "Bãi Cháy",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "17:30-18:30",
+                "tags": [
+                    "check-in",
+                    "sang chảnh",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Chụp ảnh check-in từ khu vực bến tàu (cảng tàu khách quốc tế) nhìn ra đảo hoàn toàn miễn phí."
+                },
+                "saving_tips": [
+                    "Chỉ check-in khu vực bến du thuyền hướng đảo Rêu nếu không lưu trú hoặc sử dụng dịch vụ buffet/spa bên trong resort."
+                ]
+            },
+            {
+                "id": "place_qn_003",
+                "name": "Trung tâm thương mại Vincom Plaza Hạ Long",
+                "type": "cafe",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 50000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "10:30-12:00",
+                "tags": [
+                    "mua sắm",
+                    "giải trí",
+                    "Vin_ecosystem"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chợ Hạ Long 1",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 30000,
+                    "note": "Chợ truyền thống ngay gần đó, phù hợp trải nghiệm địa phương chi phí thấp."
+                },
+                "saving_tips": [
+                    "Vào trung tâm thương mại chủ yếu để tránh nóng giờ trưa, uống cà phê phân khúc vừa phải."
+                ]
+            },
+            {
+                "id": "place_qn_004",
+                "name": "Bảo tàng Quảng Ninh",
+                "type": "tham_quan",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 90,
+                "recommended_time_slot": "08:30-10:00",
+                "tags": [
+                    "kiến trúc",
+                    "văn hóa",
+                    "giá rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Chụp ảnh check-in bên ngoài khối kính đen bảo tàng",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 40000,
+                    "note": "Kiến trúc bên ngoài rất đẹp, chụp ảnh tự do không tốn phí."
+                },
+                "saving_tips": [
+                    "Mang theo thẻ học sinh/sinh viên để được giảm 50% giá vé vào cổng."
+                ]
+            },
+            {
+                "id": "place_qn_005",
+                "name": "Cung Quy Hoạch, Hội Chợ Và Triển Lãm Quảng Ninh",
+                "type": "tham_quan",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 0,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "10:00-10:45",
+                "tags": [
+                    "miễn phí",
+                    "check-in",
+                    "kiến trúc"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 0,
+                    "estimated_saving_per_person": 0,
+                    "note": "Công trình biểu tượng hình cá heo hoàn toàn miễn phí vé vào."
+                },
+                "saving_tips": [
+                    "Nằm ngay cạnh Bảo tàng Quảng Ninh, nên đi bộ qua để tiết kiệm 100% tiền di chuyển."
+                ]
+            },
+            {
+                "id": "place_qn_006",
+                "name": "Bún bề bề bình dân khu Hòn Gai",
+                "type": "an_sang",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 40000,
+                "estimated_duration_minutes": 40,
+                "recommended_time_slot": "07:30-08:10",
+                "tags": [
+                    "đặc sản",
+                    "ăn sáng",
+                    "giá tốt"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Bánh mì patê cột đèn Hạ Long",
+                    "average_cost_per_person": 20000,
+                    "estimated_saving_per_person": 20000,
+                    "note": "Lựa chọn thay thế siêu tiết kiệm mà vẫn chuẩn vị địa phương."
+                },
+                "saving_tips": [
+                    "Tránh ăn bún bề bề tại các nhà hàng mặt đường lớn khu Bãi Cháy để không bị đẩy giá."
+                ]
+            },
+            {
+                "id": "place_qn_007",
+                "name": "Nhà hàng Hải sản bình dân - Khu Cái Dăm",
+                "type": "an_trua",
+                "area": "Bãi Cháy",
+                "average_cost_per_person": 200000,
+                "estimated_duration_minutes": 60,
+                "recommended_time_slot": "12:15-13:15",
+                "tags": [
+                    "hải sản",
+                    "ăn trưa",
+                    "giá vừa phải"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Cơm bình dân / Bún cù kỳ",
+                    "average_cost_per_person": 50000,
+                    "estimated_saving_per_person": 150000,
+                    "note": "Đổi sang món ăn cá nhân nếu tổng ngân sách tour đang bị thâm hụt."
+                },
+                "saving_tips": [
+                    "Hỏi giá và cân hải sản tươi sống trước khi chế biến.",
+                    "Đi nhóm đông người chia hóa đơn hải sản sẽ rẻ hơn đi 1-2 người."
+                ]
+            },
+            {
+                "id": "place_qn_008",
+                "name": "Sữa chua trân châu Tuấn Liên",
+                "type": "cafe",
+                "area": "Hòn Gai",
+                "average_cost_per_person": 35000,
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "20:30-21:15",
+                "tags": [
+                    "ăn vặt",
+                    "đặc sản",
+                    "ngon rẻ"
+                ],
+                "is_good_for_budget_travelers": true,
+                "cheaper_alternative": {
+                    "name": "Không cần thay thế",
+                    "average_cost_per_person": 35000,
+                    "estimated_saving_per_person": 0,
+                    "note": "Mức giá rất rẻ cho một món đặc sản tráng miệng nổi tiếng."
+                },
+                "saving_tips": [
+                    "Nên kết hợp đi dạo ngắm biển đường Trần Quốc Nghiễn rồi ghé quán ăn tối muộn."
+                ]
+            }
+        ],
+        "sample_test_cases": [
+            {
+                "case_id": "happy_path_qn_001",
+                "name": "Lịch trình Quảng Ninh tối ưu ngân sách",
+                "number_of_people": 2,
+                "budget_cap": 1200000,
+                "required_place_ids": [
+                    "place_qn_004",
+                    "place_qn_005",
+                    "place_qn_002"
+                ],
+                "optional_place_ids": [
+                    "place_qn_006",
+                    "place_qn_007",
+                    "place_qn_008"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_rental_bike",
+                    "estimated_total_transport_cost": 170000
+                },
+                "expected_behavior": "Tạo lịch trình tham quan Hòn Gai - Bãi Cháy bằng xe máy, báo cáo chi phí tối ưu trong tầm ngân sách."
+            },
+            {
+                "case_id": "error_path_qn_001",
+                "name": "Tổ hợp vui chơi lớn vượt ngân sách nghiêm ngặt",
+                "number_of_people": 2,
+                "budget_cap": 800000,
+                "required_place_ids": [
+                    "place_qn_001",
+                    "place_qn_007"
+                ],
+                "optional_place_ids": [
+                    "place_qn_006",
+                    "place_qn_003"
+                ],
+                "transport_plan": {
+                    "main_transport": "transport_taxi_grab",
+                    "estimated_total_transport_cost": 240000
+                },
+                "expected_behavior": "Giữ nguyên vé VinWonders (Sun World) và nhà hàng hải sản theo đúng rule bắt buộc, đưa ra cảnh báo thâm hụt ngân sách, khuyến nghị đổi Taxi sang thuê xe máy và giảm chi phí ăn sáng/trưa."
+            }
+        ]
+    }
+]
