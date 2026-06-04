@@ -2,24 +2,22 @@
 
 ### Ngô Đắc Lãm (Mã học viên: 2A202600655)
 
-**Phụ trách Sản phẩm & Prompt**
+**Phụ trách kiểm thử Sản phẩm & Báo cáo**
 
 * Viết document, update các file readme
-* Thiết kế, thử nghiệm và tối ưu các prompt.
-* Tạo các test-case kiểm thử và bằng chứng demo
+* Tạo các test-case kiểm thử và kiểm thử trải nghiệm người dùng 
 * Đánh giá chất lượng câu trả lời của AI và đề xuất cải tiến.
 * Trình bày cách hoạt động của AI và chiến lược prompt trong buổi demo.
-* tạo mockup ban đầu, nhưng chưa áp dụng được, vì mockup quá rộng
 * Viết báo cáo nhóm và chuẩn bị kịch bản thuyết trình.
 
 ### Phạm Thanh Hằng (Mã học viên: 2A202600593)
 
 **Phụ trách Giao diện người dùng**
 
-* Xác định bài toán và phạm vi dự án.
-* Thiết kế và xây dựng giao diện sản phẩm.
-* Kiểm thử trải nghiệm người dùng và xử lý lỗi giao diện.
-* Thực hiện phần demo luồng sử dụng của người dùng.
+* Xác định ý tưởng bài toán và phạm vi dự án.
+* Tạo data mockup ban đầu
+* Vẽ workflow của dự án
+* Thiết kế, xây dựng và chỉnh sửa giao diện sản phẩm 
 
 ### Nguyễn Ngọc Hảo (Mã học viên: 2A202600903)
 
@@ -27,5 +25,6 @@
 
 * Xây dựng luồng xử lý nghiệp vụ và tích hợp AI.
 * Quản lý repository GitHub, phân chia và hợp nhất mã nguồn.
-* Thu thập bằng chứng kiểm thử, ảnh chụp màn hình và kết quả demo.
+* Thiết kế, thử nghiệm và tối ưu các prompt.
 * Trình bày kiến trúc hệ thống và quá trình phát triển sản phẩm.
+* Thực hiện phần demo luồng sử dụng của người dùng.
