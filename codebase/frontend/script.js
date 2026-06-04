@@ -1,18 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
     const API_BASE = window.location.origin;
-    let sessionId = localStorage.getItem('budgetTripSessionId') || crypto.randomUUID();
-    localStorage.setItem('budgetTripSessionId', sessionId);
+    const SESSION_LIST_KEY = 'budgetTripSessions';
+    const ACTIVE_SESSION_KEY = 'budgetTripActiveSessionId';
 
     const chatContainer = document.getElementById('chat-container');
     const chatInput = document.getElementById('chat-input');
     const sendBtn = document.getElementById('send-btn');
+    const stopBtn = document.getElementById('stop-btn');
     const sidebar = document.getElementById('sidebar');
     const closeSidebarBtn = document.getElementById('close-sidebar-btn');
     const openSidebarBtn = document.getElementById('open-sidebar-btn');
     const newTripBtn = document.getElementById('new-trip-btn');
     const suggestedPrompts = document.getElementById('suggested-prompts');
+    const historyList = document.getElementById('history-list');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const themeIcon = document.getElementById('theme-icon');
+    let sessions = loadSessions();
+    let sessionId = localStorage.getItem(ACTIVE_SESSION_KEY);
+    let activeController = null;
+    let isGenerating = false;
+
+    if (!sessions.length) {
+        sessions.push(createSession());
+    }
+    if (!sessionId || !sessions.some(session => session.id === sessionId)) {
+        sessionId = sessions[0].id;
+    }
+    saveSessions();
+    localStorage.setItem(ACTIVE_SESSION_KEY, sessionId);
 
     function setTheme(isDark) {
         if (isDark) {
@@ -60,10 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
         type();
     }
 
-    const welcomeEl = document.querySelector('.typewriter-welcome');
-    if (welcomeEl) {
-        typeWriter(welcomeEl, 'Chào bạn! Mình là Trợ lý Thiết kế Tour. Hãy nhập ngân sách, số người, điểm xuất phát và nơi muốn đi; nếu chưa biết đi đâu, mình sẽ gợi ý giúp bạn.');
-    }
+    renderHistory();
+    renderCurrentSession();
 
     function setupCarousel(container) {
         const prevBtn = container.querySelector('.prev-btn');
@@ -80,13 +93,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    newTripBtn.addEventListener('click', async () => {
-        await fetch(`${API_BASE}/api/sessions/${sessionId}/reset`, { method: 'POST' }).catch(() => {});
-        sessionId = crypto.randomUUID();
-        localStorage.setItem('budgetTripSessionId', sessionId);
-        const messages = chatContainer.querySelectorAll('.message');
-        for (let i = 1; i < messages.length; i++) messages[i].remove();
-        suggestedPrompts.style.display = 'flex';
+    newTripBtn.addEventListener('click', () => {
+        const nextSession = createSession();
+        sessions.push(nextSession);
+        sessionId = nextSession.id;
+        saveSessions();
+        localStorage.setItem(ACTIVE_SESSION_KEY, sessionId);
+        renderHistory();
+        renderCurrentSession();
         chatInput.value = '';
     });
 
@@ -102,11 +116,96 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    function addUserMessage(text) {
+    function createSession() {
+        return {
+            id: crypto.randomUUID(),
+            title: `Chat ${sessions.length + 1}`,
+            createdAt: new Date().toISOString(),
+            messages: []
+        };
+    }
+
+    function loadSessions() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(SESSION_LIST_KEY) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+
+    function saveSessions() {
+        localStorage.setItem(SESSION_LIST_KEY, JSON.stringify(sessions));
+    }
+
+    function currentSession() {
+        let session = sessions.find(item => item.id === sessionId);
+        if (!session) {
+            session = createSession();
+            sessions.push(session);
+            sessionId = session.id;
+            saveSessions();
+        }
+        return session;
+    }
+
+    function addWelcomeMessage() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message ai-message';
+        wrapper.innerHTML = `
+            <div class="avatar-ai"><i class="ph ph-sparkle"></i></div>
+            <div class="message-content">
+                <p class="typewriter-welcome">Chào bạn! Mình là Trợ lý Thiết kế Tour. Hãy nhập ngân sách, số người, điểm xuất phát và nơi muốn đi; nếu chưa biết đi đâu, mình sẽ gợi ý giúp bạn.</p>
+            </div>
+        `;
+        chatContainer.appendChild(wrapper);
+    }
+
+    function renderHistory() {
+        historyList.innerHTML = '<div class="history-group-title">Hôm nay</div>';
+        sessions.forEach(session => {
+            const item = document.createElement('div');
+            item.className = `history-item ${session.id === sessionId ? 'active' : ''}`;
+            item.innerHTML = `<i class="ph ph-chat-circle"></i><span>${session.title}</span>`;
+            item.addEventListener('click', () => {
+                sessionId = session.id;
+                localStorage.setItem(ACTIVE_SESSION_KEY, sessionId);
+                renderHistory();
+                renderCurrentSession();
+            });
+            historyList.appendChild(item);
+        });
+    }
+
+    function renderCurrentSession() {
+        chatContainer.innerHTML = '';
+        addWelcomeMessage();
+        const session = currentSession();
+        session.messages.forEach(message => {
+            if (message.role === 'user') {
+                addUserMessage(message.text, false);
+            } else if (message.type === 'simple') {
+                addSimpleAIMessage(message.text, false, false);
+            } else if (message.type === 'agent') {
+                renderAgentResponse(message.data, false);
+            }
+        });
+        suggestedPrompts.style.display = session.messages.some(message => message.role === 'user') ? 'none' : 'flex';
+        scrollToBottom();
+    }
+
+    function persistMessage(message) {
+        const session = currentSession();
+        session.messages.push(message);
+        saveSessions();
+    }
+
+    function addUserMessage(text, persist = true) {
         const tpl = document.getElementById('tpl-user-msg');
         const clone = tpl.content.cloneNode(true);
         clone.querySelector('.message-content').textContent = text;
         chatContainer.appendChild(clone);
+        if (persist) persistMessage({ role: 'user', text });
         scrollToBottom();
     }
 
@@ -136,22 +235,27 @@ document.addEventListener('DOMContentLoaded', () => {
         window.requestAnimationFrame(step);
     }
 
-    async function callAgent(message) {
+    function setGenerating(state) {
+        isGenerating = state;
+        sendBtn.disabled = state;
+        sendBtn.classList.toggle('hidden', state);
+        stopBtn.classList.toggle('hidden', !state);
+    }
+
+    async function callAgent(message, signal) {
         const response = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, session_id: sessionId })
+            body: JSON.stringify({ message, session_id: sessionId }),
+            signal
         });
         if (!response.ok) throw new Error(`API error ${response.status}`);
         const data = await response.json();
-        if (data.session_id) {
-            sessionId = data.session_id;
-            localStorage.setItem('budgetTripSessionId', sessionId);
-        }
         return data;
     }
 
     async function handleSend() {
+        if (isGenerating) return;
         const text = chatInput.value.trim();
         if (!text) return;
 
@@ -160,18 +264,30 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
         chatInput.style.height = 'auto';
         addSkeletonLoader();
+        activeController = new AbortController();
+        setGenerating(true);
 
         try {
-            const data = await callAgent(text);
+            const data = await callAgent(text, activeController.signal);
             removeSkeletonLoader();
             renderAgentResponse(data);
         } catch (error) {
             removeSkeletonLoader();
-            addSimpleAIMessage('Backend chưa phản hồi. Bạn kiểm tra FastAPI server đang chạy ở cổng 8000 nhé.');
+            if (error.name === 'AbortError') {
+                addSimpleAIMessage('Đã dừng tạo phản hồi cho yêu cầu này.');
+            } else {
+                addSimpleAIMessage('Backend chưa phản hồi. Bạn kiểm tra FastAPI server đang chạy ở cổng 8000 nhé.');
+            }
+        } finally {
+            activeController = null;
+            setGenerating(false);
         }
     }
 
     sendBtn.addEventListener('click', handleSend);
+    stopBtn.addEventListener('click', () => {
+        if (activeController) activeController.abort();
+    });
     chatInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -179,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function addSimpleAIMessage(text) {
+    function addSimpleAIMessage(text, persist = true, animate = true) {
         const wrapper = document.createElement('div');
         wrapper.className = 'message ai-message';
         wrapper.innerHTML = `
@@ -187,19 +303,25 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="message-content"><p class="ai-text-response"></p></div>
         `;
         chatContainer.appendChild(wrapper);
-        typeWriter(wrapper.querySelector('.ai-text-response'), text, 12);
+        const target = wrapper.querySelector('.ai-text-response');
+        if (animate) {
+            typeWriter(target, text, 12);
+        } else {
+            target.textContent = text;
+        }
+        if (persist) persistMessage({ role: 'assistant', type: 'simple', text });
         scrollToBottom();
     }
 
-    function renderAgentResponse(data) {
+    function renderAgentResponse(data, persist = true) {
         if (['missing_required_input', 'out_of_scope', 'unsupported_destination', 'text_answer'].includes(data.response_type)) {
-            addSimpleAIMessage(data.message || data.follow_up_question || 'Mình cần thêm thông tin trước khi xử lý tiếp.');
+            addSimpleAIMessage(data.message || data.follow_up_question || 'Mình cần thêm thông tin trước khi xử lý tiếp.', persist);
             return;
         }
-        renderItinerary(data);
+        renderItinerary(data, persist);
     }
 
-    function renderItinerary(data) {
+    function renderItinerary(data, persist = true) {
         const tpl = document.getElementById('tpl-happy-path');
         const clone = tpl.content.cloneNode(true);
         const dest = data.city || data.captured_fields?.city_or_area || 'điểm đến';
@@ -216,10 +338,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setupImages(clone, dest);
         setupWeather(clone, dest, enrichment.weather || {});
         setupBudget(clone, budget, cost);
+        setupTransport(clone, data.transport_info || {});
         setupTimeline(clone, itinerary);
         setupReviews(clone, enrichment.reviews || {});
 
         chatContainer.appendChild(clone);
+        if (persist) persistMessage({ role: 'assistant', type: 'agent', data });
         const appendedMessage = chatContainer.lastElementChild;
         const typeTarget = appendedMessage.querySelector('.typewriter-target');
         appendedMessage.querySelectorAll('.dest-name').forEach(n => n.textContent = dest);
@@ -273,6 +397,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function setupTransport(root, transport) {
+        const legs = transport.route_legs || [];
+        if (!legs.length && !transport.transport_mode) return;
+
+        const card = document.createElement('div');
+        card.className = 'glass-card mt-3 fade-in hidden transport-card';
+        const legHtml = (legs.length ? legs : [{
+            name: transport.transport_mode,
+            estimated_cost: transport.estimated_transport_cost,
+            note: transport.best_for || transport.saving_tip || ''
+        }]).map(leg => `
+            <div class="transport-row">
+                <div>
+                    <div class="transport-name"><i class="ph ph-car"></i> ${leg.name || 'Phương tiện đề xuất'}</div>
+                    <div class="transport-note">${leg.note || ''}</div>
+                </div>
+                <div class="transport-cost">${formatCurrency(leg.estimated_cost || 0)}đ</div>
+            </div>
+        `).join('');
+
+        card.innerHTML = `
+            <h3 class="card-title"><i class="ph ph-car-profile"></i> Phương tiện đề xuất</h3>
+            <div class="transport-list">${legHtml}</div>
+        `;
+
+        const budgetCard = root.querySelector('.glass-card');
+        if (budgetCard) budgetCard.insertAdjacentElement('afterend', card);
+    }
+
     function animateBudgetBars(card, budget, totalCost, cost) {
         const denominator = Math.max(totalCost, budget, 1);
         card.querySelector('.food-bar').style.width = `${Math.min(((cost.food_cost || 0) + (cost.cafe_cost || 0)) / denominator * 100, 100)}%`;
@@ -294,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="time">${item.recommended_time_slot || 'Linh hoạt'}</div>
                 <div class="activity"><i class="ph ${iconInfo.icon} ${iconInfo.type}"></i> ${item.name || 'Hoạt động'}</div>
                 <div class="cost">${formatCurrency(total)}đ/người</div>
+                ${item.budget_reason ? `<div class="timeline-note">${item.budget_reason}</div>` : ''}
             `;
             timeline.appendChild(div);
         });

@@ -1,11 +1,44 @@
 from __future__ import annotations
 
 import math
+import unicodedata
 from typing import Any
 
 
 FOOD_TYPES = {"an_sang", "an_trua", "an_toi", "food", "restaurant"}
 CAFE_TYPES = {"cafe", "coffee"}
+
+
+ROUTE_TRANSPORT_ESTIMATES = [
+    {
+        "from": ["hoi an", "quang nam"],
+        "to": ["da nang"],
+        "mode": "Xe shuttle / Grab Car Hội An - Đà Nẵng",
+        "estimated_cost_total": 350000,
+        "tip": "Tuyến Hội An - Đà Nẵng nên tính riêng chi phí vào/ra thành phố; đi nhóm 3 người dùng Grab Car hoặc shuttle thường hợp lý hơn đi từng chặng lẻ.",
+    },
+    {
+        "from": ["rach gia", "ha tien"],
+        "to": ["kien giang", "phu quoc"],
+        "mode": "Xe trung chuyển nội tỉnh / taxi bến tàu",
+        "estimated_cost_total": 220000,
+        "tip": "Nếu đi Phú Quốc cần tính thêm vé tàu/phà riêng; bản demo hiện chỉ ước lượng phần trung chuyển nội tỉnh.",
+    },
+    {
+        "from": ["ho xuan huong", "trung tam da lat", "cho da lat"],
+        "to": ["da lat"],
+        "mode": "Di chuyển nội thành Đà Lạt",
+        "estimated_cost_total": 60000,
+        "tip": "Các điểm trung tâm có thể gom để đi bộ, nhưng ra Cầu Đất/Tà Nung nên thuê xe máy hoặc đặt xe công nghệ.",
+    },
+    {
+        "from": ["san bay lien khuong", "lien khuong"],
+        "to": ["da lat"],
+        "mode": "Xe sân bay Liên Khương - Đà Lạt",
+        "estimated_cost_total": 220000,
+        "tip": "Từ sân bay vào trung tâm nên tính thêm shuttle/taxi trước khi bắt đầu lịch trình trong thành phố.",
+    },
+]
 
 
 def vnd(value: int | float | None) -> str:
@@ -18,14 +51,39 @@ def vnd(value: int | float | None) -> str:
     return f"{amount:,}".replace(",", ".") + " VND"
 
 
+def _normalize_text(value: str | None) -> str:
+    if not value:
+        return ""
+    normalized = unicodedata.normalize("NFD", value.lower().replace("đ", "d").replace("Đ", "d"))
+    normalized = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+    return " ".join(normalized.split())
+
+
+def estimate_route_cost(starting_location: str | None, city_name: str | None) -> dict[str, Any] | None:
+    start_key = _normalize_text(starting_location)
+    city_key = _normalize_text(city_name)
+    if not start_key or not city_key:
+        return None
+
+    for route in ROUTE_TRANSPORT_ESTIMATES:
+        from_match = any(token in start_key for token in route["from"])
+        to_match = any(token in city_key for token in route["to"])
+        if from_match and to_match:
+            return dict(route)
+    return None
+
+
 def estimate_transport_cost(
     transport_options: list[dict[str, Any]],
     number_of_people: int,
     transport_preference: str | None,
     number_of_segments: int,
+    starting_location: str | None = None,
+    city_name: str | None = None,
 ) -> dict[str, Any]:
     preference = (transport_preference or "").lower()
     options = transport_options or []
+    route_cost = estimate_route_cost(starting_location, city_name)
 
     if not options:
         return {
@@ -39,24 +97,51 @@ def estimate_transport_cost(
         name = str(option.get("name", "")).lower()
         if "grab" in name or "taxi" in name:
             return cost * max(number_of_segments, 1)
-        if "xe máy" in name or "rental" in name:
+        if "xe máy" in name or "xe may" in _normalize_text(name) or "rental" in name:
             bikes_needed = max((number_of_people + 1) // 2, 1)
             return cost * bikes_needed
         return cost * max(number_of_segments, 1)
 
-    if "đi bộ" in preference or "walk" in preference:
-        selected = next((item for item in options if "đi bộ" in str(item.get("name", "")).lower()), options[0])
+    if "đi bộ" in preference or "di bo" in preference or "walk" in preference:
+        selected = next((item for item in options if "di bo" in _normalize_text(str(item.get("name", "")))), options[0])
     elif "grab" in preference or "taxi" in preference:
         selected = next((item for item in options if "grab" in str(item.get("name", "")).lower() or "taxi" in str(item.get("name", "")).lower()), options[0])
-    elif "xe máy" in preference or "thuê" in preference:
-        selected = next((item for item in options if "xe máy" in str(item.get("name", "")).lower()), options[0])
+    elif "xe máy" in preference or "xe may" in preference or "thuê" in preference or "thue" in preference:
+        selected = next((item for item in options if "xe may" in _normalize_text(str(item.get("name", "")))), options[0])
     else:
-        selected = min(options, key=option_cost)
+        practical_options = [
+            option
+            for option in options
+            if not ("di bo" in _normalize_text(str(option.get("name", ""))) and number_of_segments > 2)
+        ]
+        selected = min(practical_options or options, key=option_cost)
+
+    local_cost = option_cost(selected)
+    route_total = int(route_cost.get("estimated_cost_total") or 0) if route_cost else 0
+    route_legs = []
+    if route_cost:
+        route_legs.append(
+            {
+                "name": route_cost["mode"],
+                "estimated_cost": route_total,
+                "note": route_cost["tip"],
+            }
+        )
+    route_legs.append(
+        {
+            "name": selected.get("name", "Phương tiện nội thành"),
+            "estimated_cost": local_cost,
+            "note": selected.get("best_for", ""),
+        }
+    )
 
     return {
         "transport_mode": selected.get("name", "Phương tiện đề xuất"),
-        "estimated_transport_cost": option_cost(selected),
-        "saving_tip": selected.get("saving_tip", ""),
+        "estimated_transport_cost": local_cost + route_total,
+        "local_transport_cost": local_cost,
+        "route_transport_cost": route_total,
+        "route_legs": route_legs,
+        "saving_tip": route_cost["tip"] if route_cost else selected.get("saving_tip", ""),
         "best_for": selected.get("best_for", ""),
     }
 

@@ -22,21 +22,8 @@
                 </button>
             </div>
             
-            <div class="history-list">
-                <div class="history-group-title">Hôm nay</div>
-                <div class="history-item active">
-                    <i class="ph ph-chat-circle"></i>
-                    <span>Đà Lạt 2 ngày 1 đêm</span>
-                </div>
-                <div class="history-item">
-                    <i class="ph ph-chat-circle"></i>
-                    <span>Phú Quốc ngân sách 3tr</span>
-                </div>
-                <div class="history-group-title mt-3">Hôm qua</div>
-                <div class="history-item">
-                    <i class="ph ph-chat-circle"></i>
-                    <span>Sapa tiết kiệm</span>
-                </div>
+            <div class="history-list" id="history-list">
+                <!-- Chat sessions injected via JS -->
             </div>
             
             <div class="sidebar-footer">
@@ -78,20 +65,21 @@
             <div class="input-area-wrapper">
                 <!-- Suggestion Prompts -->
                 <div class="suggested-prompts" id="suggested-prompts">
-                    <button class="prompt-chip" data-prompt="Mình có 1.500.000 VND, đi 2 người, xuất phát từ trung tâm Đà Lạt, chưa biết đi đâu, thích check-in và ăn uống rẻ.">
+                    <button class="prompt-chip" data-prompt="Mình có 1.500.000 VND, đi 2 người, xuất phát từ Hồ Xuân Hương, muốn đi Đà Lạt 1 ngày, chưa biết đi đâu, thích check-in và ăn uống rẻ.">
                         <i class="ph ph-mountains"></i> Đà Lạt 1.5tr
                     </button>
-                    <button class="prompt-chip" data-prompt="Mình có 3 triệu, đi 2 người, xuất phát từ trung tâm Kiên Giang, muốn đi Kiên Giang, ưu tiên ăn hải sản.">
-                        <i class="ph ph-waves"></i> Phú Quốc 3 ngày
+                    <button class="prompt-chip" data-prompt="Mình có 3 triệu, đi 2 người, xuất phát từ Rạch Giá, muốn đi Kiên Giang 1 ngày, ưu tiên ăn hải sản và đi biển.">
+                        <i class="ph ph-waves"></i> Kiên Giang 2 người
                     </button>
-                    <button class="prompt-chip" data-prompt="Mình có 2 triệu, đi 3 người, xuất phát từ trung tâm Đà Nẵng, muốn đi Đà Nẵng 1 ngày, ưu tiên check-in và ăn uống rẻ.">
-                        <i class="ph ph-snowflake"></i> Sapa tiết kiệm
+                    <button class="prompt-chip" data-prompt="Mình có 2 triệu, đi 3 người, xuất phát từ Hội An, muốn đi Đà Nẵng 1 ngày, ưu tiên check-in và ăn uống rẻ.">
+                        <i class="ph ph-snowflake"></i> Đà Nẵng 2 triệu
                     </button>
                 </div>
 
                 <div class="input-box">
                     <button class="icon-btn attach-btn"><i class="ph ph-paperclip"></i></button>
                     <textarea id="chat-input" placeholder="Nhập điểm đến, ngân sách và yêu cầu của bạn..." rows="1"></textarea>
+                    <button class="stop-btn hidden" id="stop-btn" title="Dừng tạo phản hồi"><i class="ph ph-stop"></i></button>
                     <button class="send-btn" id="send-btn"><i class="ph ph-paper-plane-right"></i></button>
                 </div>
                 <div class="input-footer">AI có thể đưa ra kết quả không chính xác. Hãy kiểm tra lại ngân sách thực tế.</div>
