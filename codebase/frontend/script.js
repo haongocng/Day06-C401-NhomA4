@@ -438,7 +438,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupTimeline(root, itinerary) {
         const timeline = root.querySelector('#timeline-container');
         timeline.innerHTML = '';
+        let currentDay = null;
         itinerary.forEach(item => {
+            const day = Number(item.day || 1);
+            if (day !== currentDay) {
+                currentDay = day;
+                const heading = document.createElement('div');
+                heading.className = 'timeline-day-heading';
+                heading.textContent = `Ngày ${day}`;
+                timeline.appendChild(heading);
+            }
             const iconInfo = iconForType(item.type);
             const total = Number(item.average_cost_per_person || 0);
             const div = document.createElement('div');
