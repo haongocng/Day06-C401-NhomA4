@@ -1,103 +1,99 @@
 # Batch 02 · Day 06 — AI Product Hackathon
 
-> SPEC → Prototype → Demo. Hôm nay không có bài giảng mới — hôm nay chứng minh: SPEC là giả thuyết, prototype là bằng chứng, demo là thuyết phục.
+
+## Thành viên nhóm
+
+| Mã học viên | Họ và tên    |
+| ----------- | ------------ |
+| 2A202600655       | Ngô Đắc Lãm |
+| 2A202600593       | Phạm Thanh Hằng |
+| 2A202600903       | Nguyễn Ngọc Hảo |
 
 ---
 
-## Cách nộp bài
+## Cấu trúc dự án
 
-**Đại diện nhóm tạo MỘT repo nhóm**, đặt tên:
-
-```
-Day06-Lop-NhomXX
-```
-
-Ví dụ: `Day06-C401-Nhom03`
-
-- **README của repo nhóm phải liệt kê đủ thành viên** — mỗi người gồm **mã học viên + họ và tên**.
-- Đại diện nhóm nộp **link repo** lên LMS. **Hạn nộp: 23:59 ngày 04/06/2026.**
-- Mỗi thành viên cần **ít nhất một commit thực chất** trong repo (không commit = mất điểm cá nhân).
-
-### Cấu trúc repo nhóm
-
-```
+```text
 Day06-Lop-NhomXX/
-├── README.md        ← Danh sách thành viên (mã HV + họ tên) + mô tả ngắn sản phẩm
-├── spec/            ← SPEC sản phẩm (xem hướng dẫn trong spec/)
-└── codebase/        ← Toàn bộ code prototype (xem hướng dẫn trong codebase/)
+├── README.md
+├── spec/
+└── codebase/
+```
+
+# Budget Trip Planner
+
+## Giới thiệu
+
+Budget Trip Planner là trợ lý AI giúp người dùng thiết kế lịch trình du lịch trong phạm vi ngân sách cố định.
+
+Người dùng chỉ cần nhập:
+
+* Ngân sách
+* Thành phố muốn du lịch
+* Địa điểm bắt buộc (nếu có)
+* Sở thích
+
+AI sẽ:
+
+* Tạo lịch trình trong ngày
+* Phân bổ chi phí theo từng hạng mục
+* Cảnh báo vượt ngân sách
+* Đề xuất phương án tiết kiệm
+* Hỗ trợ chỉnh sửa và tính toán lại lịch trình
+
+---
+
+## Track
+
+Travel & Hospitality
+
+---
+
+---
+
+## Happy Path
+
+1. Người dùng nhập ngân sách và yêu cầu du lịch.
+2. AI tạo lịch trình phù hợp.
+3. Hiển thị timeline và phân bổ chi phí.
+
+## Low Confidence Path
+
+1. Người dùng nhập thiếu thông tin.
+2. AI hỏi thêm dữ liệu cần thiết.
+3. Sau khi đủ thông tin, AI tạo lịch trình.
+
+## Failure Path
+
+1. Tổng chi phí vượt ngân sách.
+2. AI cảnh báo số tiền vượt.
+3. AI đề xuất các phương án tiết kiệm.
+4. Không tự động xóa địa điểm bắt buộc.
+
+## Correction Path
+
+1. Người dùng chỉnh sửa lịch trình.
+2. AI tính toán lại ngân sách.
+3. Hiển thị sự khác biệt trước và sau khi chỉnh sửa.
+
 ```
 
 ---
 
-## Lịch ngày 06 — 04/06/2026
+## Công nghệ sử dụng
 
-| Giờ | Mốc | Cần đạt |
-|-----|-----|---------|
-| Sáng | Build | Bắt đầu từ SPEC nhẹ đã làm ở Day 5 |
-| **11:00** | Checkpoint 1 | **Show được ít nhất mockup/prototype chạy được** |
-| **13:00** | Checkpoint 2 | **Lắp được AI vào ít nhất 1 flow** |
-| **15:30** | Checkpoint 3 | **Chuẩn bị xong tài liệu demo + slide** |
-| **16:00** | Demo round | Trình bày trong zone, 10 phút/nhóm |
+- Gemini API
+- React / Next.js 
+- Stitch Mockup
+- GitHub
 
 ---
 
-## Tracks
+## Demo
 
-Mỗi nhóm chọn một lĩnh vực, lấy một app thật trong đó để soi và cải tiến:
-
-| Track | App thật gợi ý |
-|-------|----------------|
-| **Learning OS** (Vin AI Thực Chiến) | LMS khóa học, Discord lớp |
-| **Travel & Hospitality** | Vinpearl, Sun World / SunGroup |
-| **Food & Local Delivery** | ShopeeFood, GrabFood, BeFood, Xanh SM Ngon |
-| **Personal Finance** | MoMo, ZaloPay, app ngân hàng |
-| **Healthcare** | Vinmec, Long Châu, Pharmacity |
-
-> Các nhóm **cùng track** ngồi **cùng một zone** khi demo.
-
----
-
-## Kỳ vọng mỗi demo
-
-1. **Product Canvas** — giới thiệu ý tưởng và nỗi đau (painpoint) của người dùng.
-2. **Demo full luồng end-to-end** — show cả happy case lẫn error case.
-3. **AI chạy thật trong ít nhất 1 flow** — không chỉ mockup tĩnh.
-
----
-
-## Demo round (16:00)
-
-- Mỗi nhóm **10 phút** (≈ 5 phút trình bày + 5 phút Q&A).
-- Các nhóm khác **phản biện, đặt câu hỏi**.
-- **Đánh giá chéo qua form**: thành viên các nhóm khác chấm điểm.
-- **Tổng kết**: nhóm điểm cao nhất mỗi zone được **bonus**; còn thời gian thì các nhóm điểm cao **present trước cả lớp**; giảng viên đánh giá.
-
-Chi tiết luật chơi + cách chấm: [`hackathon-rules.md`](hackathon-rules.md)
-
----
-
-## Chấm điểm (Day 5 + Day 6 = 100 điểm)
-
-| Hạng mục | Điểm |
-|----------|------|
-| SPEC | 25 |
-| Prototype | 15 |
-| Demo Day | 25 |
-| Bài tập UX (Day 5) | 10 |
-| Phản ánh cá nhân (reflection) | 25 |
-
-**Điều kiện chặn:** prototype không có lời gọi AI thật → giới hạn 4/10 · không có commit → mất điểm cá nhân · không giải thích được phần mình khi bị hỏi → 0 điểm demo cá nhân.
-
----
-
-## Tài liệu trong repo này
-
-| Folder / file | Nội dung |
-|---------------|----------|
-| [`hackathon-rules.md`](hackathon-rules.md) | Luật chơi, lịch, demo round, cách chấm |
-| [`spec/`](spec/) | Hướng dẫn viết SPEC sản phẩm (nối tiếp SPEC nhẹ Day 5) |
-| [`codebase/`](codebase/) | Yêu cầu nộp code prototype |
-
----
-
-*Batch 02 · Ngày 06 — VinUni A20 · AI Thực Chiến · 2026*
+Prototype hỗ trợ:
+- Happy Path
+- Low Confidence Path
+- Failure Path
+- Correction Path
+```
