@@ -96,6 +96,12 @@ def is_out_of_scope_request(user_text: str) -> bool:
 
     travel_signals = [
         "đi",
+        "từ",
+        "tu ",
+        "lên",
+        "len ",
+        "đến",
+        "den ",
         "du lịch",
         "tour",
         "lịch trình",
@@ -203,6 +209,7 @@ Return only valid JSON with this schema:
   "city_or_area": string or null,
   "starting_location": string or null,
   "desired_places": array of strings,
+  "number_of_days": integer or null,
   "travel_date": string or null,
   "travel_preferences": array of strings,
   "transport_preference": string or null,
@@ -290,6 +297,17 @@ def _parse_people(text: str) -> int | None:
     return None
 
 
+def _parse_trip_days(text: str) -> int:
+    normalized = text.lower()
+    match = re.search(r"(\d+)\s*(ngày|ngay|day|days)\b", normalized)
+    if match:
+        return max(1, min(int(match.group(1)), 14))
+    match = re.search(r"(\d+)\s*(đêm|dem|night|nights)\b", normalized)
+    if match:
+        return max(1, min(int(match.group(1)) + 1, 14))
+    return 1
+
+
 def _clean_city_or_area(value: Any) -> str | None:
     if value is None:
         return None
@@ -299,6 +317,8 @@ def _clean_city_or_area(value: Any) -> str | None:
     text = re.split(r"\b(?:thích|thich|và thích|va thich|chưa biết|chua biet)\b", text, maxsplit=1)[0]
     text = re.sub(r"\b\d+\s*(ngày|ngay|đêm|dem|hôm|hom)\b", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\b(1 ngày|mot ngay|một ngày)\b", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b\d+\s*(người|nguoi|bạn|ban|people|persons|travelers|travellers|pax)\b", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b\d+(?:[\.,]\d+)?\s*(triệu|trieu|m|k|nghìn|nghin|vnd|vnđ|đ)\b", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\b(?:for\s+)?\d+\s*(day|days|night|nights)\b", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\bfor one day\b", "", text, flags=re.IGNORECASE)
     text = re.sub(r"^(?:travel to|go to|visit|to)\s+", "", text, flags=re.IGNORECASE)
@@ -316,6 +336,17 @@ def _coerce_parsed_request(parsed: dict[str, Any]) -> dict[str, Any]:
     elif isinstance(people, float):
         parsed["number_of_people"] = int(people)
 
+    days = parsed.get("number_of_days")
+    if isinstance(days, str):
+        match = re.search(r"\d+", days)
+        parsed["number_of_days"] = max(1, min(int(match.group(0)), 14)) if match else 1
+    elif isinstance(days, float):
+        parsed["number_of_days"] = max(1, min(int(days), 14))
+    elif not isinstance(days, int) or days <= 0:
+        parsed["number_of_days"] = 1
+    else:
+        parsed["number_of_days"] = max(1, min(days, 14))
+
     for field in ["desired_places", "travel_preferences", "meal_preferences"]:
         value = parsed.get(field)
         if value is None:
@@ -331,6 +362,7 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
     lower = user_text.lower()
     starting_location = None
     start_patterns = [
+        r"(?:^|\s)(?:từ|tu)\s+([^,.]+?)\s+(?:lên|len|đến|den|tới|toi|ra|vào|vao)\s+[^,.]+",
         r"(?:xuất phát từ|xuat phat tu|bắt đầu từ|bat dau tu|đi từ|di tu)\s+([^,.]+)",
         r"(?:ở|o)\s+([^,.]+)\s+(?:muốn|muon|đi|di)",
         r"(?:starting from|start from|departing from|from)\s+([^,.]+?)(?:\s+(?:to|and|with|for)\s+|[,.]|$)",
@@ -343,7 +375,7 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
 
     target_segment = None
     target_match = re.search(
-        r"(?:muốn đi|muon di|đến|den|du lịch|du lich|tham quan|travel to|go to|visit|to)\s+([^,.]+)",
+        r"(?:muốn đi|muon di|đến|den|lên|len|tới|toi|ra|vào|vao|du lịch|du lich|tham quan|travel to|go to|visit|to)\s+([^,.]+)",
         lower,
     )
     if target_match:
@@ -413,6 +445,7 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
         "_explicit_city_or_area": target_segment,
         "starting_location": starting_location,
         "desired_places": desired_places,
+        "number_of_days": _parse_trip_days(user_text),
         "travel_date": None,
         "travel_preferences": preferences,
         "transport_preference": transport_preference,
@@ -428,6 +461,8 @@ def parse_user_request(user_text: str, config: dict[str, Any]) -> dict[str, Any]
     else:
         if fallback_parsed.get("_explicit_city_or_area"):
             parsed["city_or_area"] = fallback_parsed["_explicit_city_or_area"]
+        if int(fallback_parsed.get("number_of_days") or 1) > 1:
+            parsed["number_of_days"] = fallback_parsed["number_of_days"]
         for field, value in fallback_parsed.items():
             if field.startswith("_"):
                 continue
@@ -440,6 +475,7 @@ def parse_user_request(user_text: str, config: dict[str, Any]) -> dict[str, Any]
         "city_or_area": None,
         "starting_location": None,
         "desired_places": [],
+        "number_of_days": 1,
         "travel_date": None,
         "travel_preferences": [],
         "transport_preference": None,
@@ -447,6 +483,9 @@ def parse_user_request(user_text: str, config: dict[str, Any]) -> dict[str, Any]
     }
     defaults.update(parsed)
     defaults.pop("_explicit_city_or_area", None)
+    detected_days = _parse_trip_days(user_text)
+    if detected_days > 1:
+        defaults["number_of_days"] = detected_days
     return _coerce_parsed_request(defaults)
 
 
@@ -504,6 +543,136 @@ def build_itinerary(
             itinerary.append(dict(place))
 
     itinerary.sort(key=lambda item: item.get("recommended_time_slot") or "99:99")
+    return itinerary
+
+
+def _dedupe_places(places: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    unique: list[dict[str, Any]] = []
+    for place in places:
+        key = str(place.get("id") or place.get("name"))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(dict(place))
+    return unique
+
+
+def _daily_variant(source: dict[str, Any], day: int, place_type: str, variant_index: int = 0) -> dict[str, Any]:
+    variants = {
+        "an_sang": [
+            ("Bữa sáng địa phương gần điểm xuất phát", "Khu trung tâm", 40000, "08:00-08:45"),
+            ("Xôi, bánh mì hoặc món sáng bình dân", "Khu trung tâm", 35000, "08:00-08:40"),
+            ("Bún/phở/quán sáng địa phương", "Khu dân cư gần điểm tham quan", 45000, "08:00-08:45"),
+            ("Món sáng nhẹ để giữ ngân sách", "Gần điểm xuất phát", 35000, "08:00-08:40"),
+        ],
+        "an_trua": [
+            ("Cơm phần hoặc quán địa phương buổi trưa", "Khu trung tâm", 55000, "11:30-12:20"),
+            ("Món đặc sản địa phương mức bình dân", "Gần điểm tham quan", 65000, "11:30-12:30"),
+            ("Bún/mì/cơm quán nhỏ", "Khu dân cư", 50000, "11:30-12:20"),
+            ("Bữa trưa nâng cấp nhẹ trong ngân sách", "Khu trung tâm", 75000, "11:30-12:30"),
+        ],
+        "an_toi": [
+            ("Ăn tối món địa phương bình dân", "Khu trung tâm", 90000, "18:30-19:45"),
+            ("Dạo chợ/đường ăn uống và ăn vặt", "Khu trung tâm", 80000, "18:30-20:00"),
+            ("Bữa tối món Việt dễ chia theo nhóm", "Gần điểm lưu trú", 100000, "18:30-20:00"),
+            ("Quán tối đông khách địa phương", "Khu dân cư", 85000, "18:30-19:45"),
+        ],
+        "cafe": [
+            ("Cafe view đẹp để nghỉ chân", "Khu trung tâm", 60000, "15:30-16:30"),
+            ("Trà/cafe nhẹ sau giờ tham quan", "Gần điểm tham quan", 45000, "15:30-16:15"),
+            ("Cafe yên tĩnh cho nhóm nhỏ", "Khu trung tâm", 55000, "15:30-16:30"),
+            ("Kem/trà chiều địa phương", "Khu trung tâm", 50000, "15:30-16:15"),
+        ],
+        "tham_quan": [
+            ("Dạo phố và chụp ảnh kiến trúc địa phương", "Khu trung tâm", 0, "09:00-10:30"),
+            ("Tham quan hồ/công viên hoặc quảng trường gần trung tâm", "Khu trung tâm", 0, "14:00-15:00"),
+            ("Khám phá khu văn hóa địa phương", "Khu văn hóa", 30000, "09:00-10:30"),
+            ("Check-in phố đi bộ và không gian công cộng", "Khu trung tâm", 0, "16:00-17:30"),
+        ],
+    }
+    options = variants.get(place_type) or variants["tham_quan"]
+    name, area, cost, time_slot = options[variant_index % len(options)]
+    item = dict(source)
+    item.update(
+        {
+            "name": name,
+            "area": area,
+            "average_cost_per_person": cost,
+            "recommended_time_slot": time_slot,
+            "estimated_duration_minutes": source.get("estimated_duration_minutes") or 60,
+            "tags": [*source.get("tags", []), "daily_variant"],
+            "is_good_for_budget_travelers": cost <= 70000,
+        }
+    )
+    return item
+
+
+def _next_place(bucket: list[dict[str, Any]], cursor: int, day: int, place_type: str) -> tuple[dict[str, Any] | None, int]:
+    if not bucket:
+        return None, cursor
+    should_variant = cursor >= len(bucket)
+    source = dict(bucket[cursor % len(bucket)])
+    if should_variant:
+        source = _daily_variant(source, day, place_type, cursor - len(bucket))
+    cursor += 1
+    source["day"] = day
+    source["type"] = source.get("type") or place_type
+    if should_variant or day > 1:
+        source["id"] = f"{source.get('id') or normalize_text(source.get('name', 'place')).replace(' ', '_')}_day_{day}_{cursor}"
+    return source, cursor
+
+
+def build_multi_day_itinerary(
+    matched_places: list[dict[str, Any]],
+    suggested_places: list[dict[str, Any]],
+    all_places: list[dict[str, Any]],
+    mode: str,
+    number_of_days: int,
+) -> list[dict[str, Any]]:
+    if number_of_days <= 1:
+        return build_itinerary(matched_places, suggested_places, mode)
+
+    pool = _dedupe_places([*matched_places, *suggested_places, *all_places])
+    buckets: dict[str, list[dict[str, Any]]] = {
+        "an_sang": [],
+        "tham_quan": [],
+        "an_trua": [],
+        "cafe": [],
+        "an_toi": [],
+    }
+    for place in pool:
+        place_type = str(place.get("type", "tham_quan"))
+        buckets.setdefault(place_type, []).append(place)
+
+    cursors = {key: 0 for key in buckets}
+    itinerary: list[dict[str, Any]] = []
+    day_patterns = [
+        ["an_sang", "tham_quan", "an_trua", "tham_quan", "cafe", "an_toi"],
+        ["an_sang", "tham_quan", "tham_quan", "an_trua", "cafe", "an_toi"],
+        ["an_sang", "tham_quan", "an_trua", "cafe", "tham_quan", "an_toi"],
+    ]
+
+    required = _dedupe_places(matched_places)
+    for index, place in enumerate(required):
+        item = dict(place)
+        item["day"] = min(index + 1, number_of_days)
+        item["required"] = True
+        itinerary.append(item)
+
+    for day in range(1, number_of_days + 1):
+        existing_types = [str(item.get("type", "tham_quan")) for item in itinerary if item.get("day") == day]
+        for place_type in day_patterns[(day - 1) % len(day_patterns)]:
+            if place_type in {"an_sang", "an_trua", "an_toi", "cafe"} and place_type in existing_types:
+                continue
+            place, next_cursor = _next_place(buckets.get(place_type, []), cursors.get(place_type, 0), day, place_type)
+            cursors[place_type] = next_cursor
+            if not place:
+                continue
+            itinerary.append(place)
+            existing_types.append(place_type)
+
+    itinerary.sort(key=lambda item: (int(item.get("day") or 1), item.get("recommended_time_slot") or "99:99"))
     return itinerary
 
 
@@ -596,6 +765,59 @@ def optimize_itinerary_for_budget(
     return optimized
 
 
+def trim_itinerary_to_budget(
+    itinerary: list[dict[str, Any]],
+    number_of_people: int,
+    budget_cap: int,
+    transport_cost: int,
+) -> list[dict[str, Any]]:
+    trimmed = [dict(item) for item in itinerary]
+    protected_types = {"an_sang", "an_trua", "an_toi"}
+
+    def total_cost(items: list[dict[str, Any]]) -> int:
+        return int(calculate_trip_cost(items, number_of_people, transport_cost)["total_cost"])
+
+    while total_cost(trimmed) > budget_cap:
+        removable_indexes = [
+            index
+            for index, item in enumerate(trimmed)
+            if not item.get("required")
+            and str(item.get("type", "tham_quan")) not in protected_types
+            and int(item.get("average_cost_per_person") or 0) > 0
+        ]
+        if not removable_indexes:
+            break
+        remove_index = max(
+            removable_indexes,
+            key=lambda index: int(trimmed[index].get("average_cost_per_person") or 0),
+        )
+        trimmed.pop(remove_index)
+
+    trimmed.sort(key=lambda item: (int(item.get("day") or 1), item.get("recommended_time_slot") or "99:99"))
+    return trimmed
+
+
+def has_budget_safe_upgrade(
+    all_places: list[dict[str, Any]],
+    itinerary: list[dict[str, Any]],
+    number_of_people: int,
+    remaining_budget: int,
+) -> bool:
+    if remaining_budget <= 0:
+        return False
+    used_ids = {item.get("id") for item in itinerary}
+    used_names = {normalize_text(item.get("name")) for item in itinerary}
+    buffer_amount = 50000
+    for place in all_places:
+        cost = int(place.get("average_cost_per_person") or 0) * number_of_people
+        if cost <= 0 or cost > max(remaining_budget - buffer_amount, 0):
+            continue
+        if place.get("id") in used_ids or normalize_text(place.get("name")) in used_names:
+            continue
+        return True
+    return False
+
+
 def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
     config = load_agent_config()
     language = detect_response_language(user_text)
@@ -672,21 +894,13 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
         limit=8,
     )
     mode = validation["mode"]
-    itinerary = build_itinerary(place_result["matched_places"], place_result["suggested_places"], mode)
-    transport_info = estimate_transport_cost(
-        city.transport_options,
-        int(parsed["number_of_people"]),
-        parsed.get("transport_preference"),
-        number_of_segments=max(len(itinerary) - 1, 1),
-        starting_location=parsed.get("starting_location"),
-        city_name=city.metadata.get("city"),
-    )
-    itinerary = optimize_itinerary_for_budget(
-        itinerary,
+    number_of_days = int(parsed.get("number_of_days") or 1)
+    itinerary = build_multi_day_itinerary(
+        place_result["matched_places"],
+        place_result["suggested_places"],
         city.places,
-        int(parsed["number_of_people"]),
-        int(parsed["budget_cap"]),
-        int(transport_info["estimated_transport_cost"]),
+        mode,
+        number_of_days,
     )
     transport_info = estimate_transport_cost(
         city.transport_options,
@@ -696,6 +910,36 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
         starting_location=parsed.get("starting_location"),
         city_name=city.metadata.get("city"),
     )
+    if number_of_days <= 1:
+        itinerary = optimize_itinerary_for_budget(
+            itinerary,
+            city.places,
+            int(parsed["number_of_people"]),
+            int(parsed["budget_cap"]),
+            int(transport_info["estimated_transport_cost"]),
+        )
+    else:
+        itinerary = trim_itinerary_to_budget(
+            itinerary,
+            int(parsed["number_of_people"]),
+            int(parsed["budget_cap"]),
+            int(transport_info["estimated_transport_cost"]),
+        )
+    transport_info = estimate_transport_cost(
+        city.transport_options,
+        int(parsed["number_of_people"]),
+        parsed.get("transport_preference"),
+        number_of_segments=max(len(itinerary) - 1, 1),
+        starting_location=parsed.get("starting_location"),
+        city_name=city.metadata.get("city"),
+    )
+    if number_of_days > 1:
+        itinerary = trim_itinerary_to_budget(
+            itinerary,
+            int(parsed["number_of_people"]),
+            int(parsed["budget_cap"]),
+            int(transport_info["estimated_transport_cost"]),
+        )
     cost_summary = calculate_trip_cost(
         itinerary,
         int(parsed["number_of_people"]),
@@ -717,8 +961,16 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
         "NEAR_LIMIT": f"Vẫn trong ngân sách nhưng đã gần chạm trần. Còn dư {vnd(budget_status['remaining_budget'])}.",
         "OVER_BUDGET": f"Vượt ngân sách {vnd(budget_status['over_budget_amount'])}. Mình giữ các điểm bắt buộc và đề xuất cách tiết kiệm bên dưới.",
     }[budget_status["status"]]
-    if budget_status["status"] != "OVER_BUDGET":
+    can_upgrade = has_budget_safe_upgrade(
+        city.places,
+        itinerary,
+        int(parsed["number_of_people"]),
+        int(budget_status["remaining_budget"]),
+    )
+    if budget_status["status"] != "OVER_BUDGET" and can_upgrade:
         status_text += " Bạn có muốn mình cải thiện lịch trình để trải nghiệm tốt hơn trong phần ngân sách còn lại không?"
+    if number_of_days > 1:
+        status_text = f"Lịch trình {number_of_days} ngày. " + status_text
 
     metadata = city.metadata or {}
 

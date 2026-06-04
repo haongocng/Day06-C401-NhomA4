@@ -1,129 +1,129 @@
-# Codebase
+# Budget Travel Planner AI
 
-Đây là nơi nhóm nộp toàn bộ phần code của prototype. Mục tiêu là để giảng viên và các nhóm khác nhìn được sản phẩm chạy như thế nào, và mỗi thành viên đã đóng góp ra sao.
+Demo trợ lý lập lịch trình du lịch theo ngân sách. User có thể nhập tự nhiên bằng tiếng Việt hoặc tiếng Anh; hệ thống sẽ kiểm tra input bắt buộc, tạo lịch trình, tính chi phí, gợi ý phương tiện, thời tiết, map/review và các mẹo tiết kiệm.
 
-## Prototype: BudgetTrip Planner
+## Tính năng chính
 
-Demo Streamlit 1-agent cho bài toán lập tour 1 ngày theo ngân sách.
+- Chat nhiều lượt, có nhớ context trong cùng một chuyến đi.
+- Input bắt buộc: ngân sách, số người, thành phố/khu vực muốn đi, điểm xuất phát.
+- Hỗ trợ duration như `1 ngày`, `3 ngày`, `5 ngày`; lịch trình sẽ được chia theo từng ngày.
+- Nếu thiếu input, agent hỏi lại và lưu phần đã có để lượt sau bổ sung tiếp.
+- Dữ liệu chính lấy từ `Data/Data_10provinces.json`.
+- Nếu điểm đến không có trong mock data, agent thử web fallback và lưu vào `Data/web_city_cache.json`.
+- Có guardrail để tránh sinh lịch trình khi dữ liệu web không đủ tin cậy.
+- Tính chi phí ăn uống, cafe, tham quan, di chuyển và tổng tiền.
+- Gợi ý tiết kiệm khi vượt ngân sách; nếu còn dư nhiều, agent cố tối ưu lịch trình để trải nghiệm tốt hơn.
+- Frontend chat có nút Stop để hủy request đang generate.
 
-Agent chạy theo flow:
+## Cấu trúc thư mục
 
 ```text
-parse_user_request
--> validate_required_inputs
--> search_mock_places / ask_missing_fields
--> estimate_transport_cost
--> build_itinerary
--> calculate_trip_cost
--> check_budget_status
--> generate_saving_suggestions
--> get_weather_suggestion / build_map_suggestions / get_review_summary
--> log_agent_run
+codebase/
+├── api.py                         # FastAPI backend + session context
+├── travel_agent.py                # Parser, guardrails, itinerary agent
+├── budget_calculator.py           # Tính chi phí, budget status, transport estimate
+├── data_loader.py                 # Load/search mock data
+├── external_city_data.py          # Web fallback + cache
+├── enrichment_tools.py            # Weather/map/review enrichment
+├── agent_logger.py                # Log agent runs
+├── schemas.py                     # Pydantic schemas
+├── requirements.txt               # Python dependencies
+├── Data/
+│   ├── Data_10provinces.json
+│   └── web_city_cache.json
+├── frontend/
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+└── tools/
+    └── budget_travel_agent_tools_config.json
 ```
 
-Các rule chính:
+## Cài đặt
 
-- Input bắt buộc: ngân sách, số người, thành phố/khu vực, điểm xuất phát.
-- Địa điểm muốn đi là optional. Nếu thiếu, app bật inspire mode và gợi ý route tiết kiệm từ mock data.
-- Nếu thiếu input bắt buộc, app hỏi lại và không tự bịa lịch trình.
-- Nếu vượt ngân sách, app giữ địa điểm bắt buộc, cảnh báo số tiền vượt và gợi ý tiết kiệm.
-- Mỗi lượt agent được ghi log JSONL để demo được luồng xử lý.
-- Kết quả có thêm thời tiết, link bản đồ và review tham khảo từ web.
-
-## Cách chạy FastAPI + Frontend
-
-Từ folder repo:
+Từ thư mục gốc project:
 
 ```powershell
-cd .\Day06-C401-NhomA4
-.\venv\Scripts\python.exe -m pip install -r .\codebase\requirements.txt
-.\venv\Scripts\python.exe -m uvicorn codebase.api:app --host 127.0.0.1 --port 8000 --reload
+cd D:\Vin\Day06-C401-NhomA4
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r codebase\requirements.txt
 ```
 
-Mở frontend tại:
+Tạo file `.env` ở thư mục gốc `Day06-C401-NhomA4`:
+
+```env
+9_ROUTER_API_KEY=your_key
+9ROUTER_BASE_URL=your_base_url
+9ROUTER_MODEL=your_model
+TAVILY_API_KEY=your_tavily_key
+```
+
+`TAVILY_API_KEY` dùng cho web fallback. Nếu thiếu key này, agent vẫn chạy với mock data nhưng khả năng xử lý tỉnh ngoài data sẽ hạn chế.
+
+## Chạy project
+
+```powershell
+cd D:\Vin\Day06-C401-NhomA4
+.\venv\Scripts\activate
+python -m uvicorn codebase.api:app --host 127.0.0.1 --port 8000
+```
+
+Mở frontend:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-API chính:
+Health check:
 
 ```text
-GET  /health
-POST /api/chat
-POST /api/sessions/{session_id}/reset
+http://127.0.0.1:8000/health
 ```
 
-App đọc biến môi trường 9router từ file `.env` ở root repo:
+## Test case gợi ý
+
+Happy path một lượt:
 
 ```text
-9_ROUTER_API_KEY=...
-9ROUTER_BASE_URL=http://localhost:20128/v1
-9ROUTER_MODEL=oc/mimo-v2.5-free
+Mình có 2 triệu, đi 3 người, xuất phát từ Hội An, muốn đi Đà Nẵng 1 ngày, ưu tiên check-in và ăn uống rẻ.
 ```
 
-Nếu 9router/local LLM chưa chạy, prototype vẫn có fallback parser đơn giản để demo các luồng chính.
-
-## Streamlit demo phụ
-
-Nếu muốn chạy bản Streamlit cũ:
-
-```powershell
-.\venv\Scripts\python.exe -m streamlit run .\codebase\app.py
-```
-
-## Web fallback cho tỉnh ngoài mock data
-
-Nếu `Data/Data_10provinces.json` chưa có khu vực user nhập, agent sẽ thử:
+Multi-turn thiếu điểm xuất phát:
 
 ```text
-Tavily web search
--> 9router chuẩn hoá snippets thành schema địa điểm/chi phí
--> lưu vào Data/web_city_cache.json
--> lập lịch trình với confidence + source URLs
+tôi muốn đi hà nội 5 triệu 3 người 5 ngày
 ```
 
-Cần thêm biến:
+Agent sẽ hỏi thiếu điểm xuất phát. Nhập tiếp:
 
 ```text
-TAVILY_API_KEY=...
+từ Hưng Yên lên Hà Nội
 ```
 
-Guardrail:
+Agent sẽ tạo lịch trình nhiều ngày thay vì dồn toàn bộ hoạt động vào một ngày.
 
-- Dữ liệu web-cache luôn hiển thị độ tin cậy `low/medium/high`.
-- Giá có `cost_confidence`, nếu không chắc thì chỉ là ước lượng demo.
-- Nếu web search hoặc LLM không trả đủ dữ liệu, app không tự bịa tour.
-
-## Logging và enrichment
-
-Agent log được ghi tại:
+Follow-up trong cùng đoạn chat:
 
 ```text
-codebase/logs/agent_runs.jsonl
+có quán cafe nào ngon ở Hà Nội không?
 ```
 
-Mỗi dòng log gồm:
+Guardrail ngoài luồng:
 
 ```text
-run_id, timestamp, user_input, captured_fields, tool_trace,
-reasoning_summary, output_summary
+viết code Python cho tôi
 ```
 
-Lưu ý: `reasoning_summary` là bản tóm tắt quyết định có thể quan sát được, không ghi chain-of-thought thô.
+Điểm đến ngoài mock data:
 
-Thông tin bổ trợ trong UI:
+```text
+Mình có 2 triệu, đi 2 người, xuất phát từ Hà Nội, muốn đi Cao Bằng, thích thiên nhiên và ăn uống rẻ.
+```
 
-- Thời tiết: ưu tiên `wttr.in`, fallback sang Tavily nếu cần.
-- Bản đồ: tạo link Google Maps theo điểm xuất phát và các điểm trong lịch trình.
-- Review: dùng Tavily web search để tổng hợp vài highlight và nguồn tham khảo.
+## Ghi chú demo
 
-## Nhóm cần làm
-
-- Đưa mã nguồn của prototype vào folder này. Nếu prototype được deploy hoặc host ở nơi khác, hãy để lại đường link kèm hướng dẫn truy cập.
-- Trong file `README.md` của nhóm, ghi rõ ba điều: cách chạy prototype (các bước cài đặt và biến môi trường nếu cần), những công cụ và API đã dùng (model AI, framework, công cụ dựng giao diện…), và phần phân công ai làm gì.
-- Mỗi thành viên nên có ít nhất một commit thực chất trong repo — đây là căn cứ để ghi nhận đóng góp của từng người.
-
-## Lưu ý
-
-Đừng commit những thông tin nhạy cảm như API key hay file `.env`. Nếu prototype cần các biến môi trường, hãy dùng một file `.env.example` để mô tả các biến đó thay vì để lộ giá trị thật.
+- Giá trong hệ thống là ước lượng để demo, không phải báo giá thực tế.
+- Dữ liệu web fallback có confidence thấp hơn mock data và nên kiểm tra lại nguồn trước khi demo thật.
+- Log agent được ghi ở `logs/agent_runs.jsonl`.
+- Cache web fallback nằm ở `Data/web_city_cache.json`; nếu cache bị nhiễu, có thể xóa record của tỉnh đó để agent tìm lại.
