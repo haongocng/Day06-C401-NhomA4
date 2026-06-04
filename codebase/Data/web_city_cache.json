@@ -346,5 +346,416 @@
         ]
       }
     ]
+  },
+  {
+    "metadata": {
+      "project_name": "AI Travel Budget Planner",
+      "city": "Đà Nẵng",
+      "currency": "VND",
+      "version": "web-cache-1.0",
+      "description": "Dữ liệu lấy từ web fallback, cần hiển thị confidence và nguồn.",
+      "data_source": "web_cache",
+      "confidence": "low",
+      "confidence_note": "LLM chuẩn hóa không phản hồi, nên agent dùng heuristic từ kết quả Tavily. Giá chỉ là ước lượng demo.",
+      "source_urls": [
+        "https://www.traveloka.com/vi-vn/activities/vietnam/region/da-nang-10010083",
+        "https://intour.com.vn/bang-gia-ve-tham-quan-toan-quoc/cap-nhat-gia-ve-cac-dia-diem-tham-quan-o-da-nang-moi-nhat.html",
+        "https://d2tourdanang.com/bang-gia-tat-ca-cac-diem-du-lich-tai-da-nang-cap-nhat-moi-nhat",
+        "https://phongnhakebangtour.com/66-blog-gia-ve-tham-quan-cac-diem-du-lich-tai-da-nanghoi-an",
+        "https://danatravel.vn/thong-tin-du-lich/bang-gia-ve-tham-quan-cac-diem-du-lich-da-nang-khong-the-bo-qua.html",
+        "https://zalopay.vn/quan-an-ngon-da-nang-5286"
+      ],
+      "fetched_at": "2026-06-04T08:26:45.299507+00:00"
+    },
+    "budget_planning_rules": {
+      "budget_status": {
+        "within_budget": "Tổng chi phí <= ngân sách người dùng",
+        "over_budget": "Tổng chi phí > ngân sách người dùng"
+      },
+      "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+      "suggestion_policy": "Dữ liệu web-cache phải hiển thị confidence; giá low-confidence chỉ là ước lượng.",
+      "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+    },
+    "transport_options": [
+      {
+        "id": "web_transport_walk_da_nang",
+        "name": "Đi bộ / gom điểm gần nhau",
+        "estimated_cost_per_trip": 0,
+        "best_for": "Các lịch trình trung tâm hoặc các điểm gần nhau.",
+        "saving_tip": "Vì đây là dữ liệu web fallback, hãy ưu tiên gom các điểm gần nhau và kiểm tra lại quãng đường trước khi đi."
+      },
+      {
+        "id": "web_transport_grab_da_nang",
+        "name": "Taxi công nghệ / xe ôm công nghệ",
+        "estimated_cost_per_trip": 50000,
+        "best_for": "Di chuyển linh hoạt khi chưa có dữ liệu tuyến đường chính xác.",
+        "saving_tip": "So sánh giá trên app trước khi đặt; chi phí này chỉ là ước lượng demo."
+      }
+    ],
+    "places": [
+      {
+        "id": "web_da_nang_001",
+        "name": "Du lịch Đà Nẵng: Vé tham quan và tour Đà Nẵng 2026",
+        "type": "tham_quan",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://www.traveloka.com/vi-vn/activities/vietnam/region/da-nang-10010083"
+        ]
+      },
+      {
+        "id": "web_da_nang_002",
+        "name": "Giá Vé Tham Quan Ở Đà Nẵng Mới Nhất 2026",
+        "type": "an_sang",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 40000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "07:30-08:15",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://intour.com.vn/bang-gia-ve-tham-quan-toan-quoc/cap-nhat-gia-ve-cac-dia-diem-tham-quan-o-da-nang-moi-nhat.html"
+        ]
+      },
+      {
+        "id": "web_da_nang_003",
+        "name": "Bảng Gía Tất Cả Các Điểm Du Lịch Tại Đà Nẵng Cập Nhật Mới Nhất",
+        "type": "an_trua",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 80000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "12:00-13:00",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": false,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://d2tourdanang.com/bang-gia-tat-ca-cac-diem-du-lich-tai-da-nang-cap-nhat-moi-nhat"
+        ]
+      },
+      {
+        "id": "web_da_nang_004",
+        "name": "GIÁ VÉ THAM QUAN CÁC ĐIỂM DU LỊCH TẠI ĐÀ NẴNG – HỘI AN",
+        "type": "cafe",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 45000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "15:00-15:45",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://phongnhakebangtour.com/66-blog-gia-ve-tham-quan-cac-diem-du-lich-tai-da-nanghoi-an"
+        ]
+      },
+      {
+        "id": "web_da_nang_005",
+        "name": "Bảng giá vé tham quan các điểm du lịch Đà Nẵng 2026 không thể ...",
+        "type": "tham_quan",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://danatravel.vn/thong-tin-du-lich/bang-gia-ve-tham-quan-cac-diem-du-lich-da-nang-khong-the-bo-qua.html"
+        ]
+      },
+      {
+        "id": "web_da_nang_006",
+        "name": "Top 50 quán ăn ngon Đà Nẵng ngon",
+        "type": "an_toi",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 80000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "18:30-19:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": false,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://zalopay.vn/quan-an-ngon-da-nang-5286"
+        ]
+      },
+      {
+        "id": "web_da_nang_007",
+        "name": "TOP 10+ Quán ăn view đẹp Đà Nẵng Giá Rẻ ngon chill cho nhóm bạn",
+        "type": "tham_quan",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://pasgo.vn/kham-pha/ha-noi/top-cac-quan-an-view-dep-da-nang-gia-re-1758"
+        ]
+      },
+      {
+        "id": "web_da_nang_008",
+        "name": "10 Nhà hàng tốt nhất tại Đà Nẵng",
+        "type": "an_sang",
+        "area": "Đà Nẵng",
+        "average_cost_per_person": 40000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "07:30-08:15",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://www.tripadvisor.com.vn/Restaurants-g298085-Da_Nang.html"
+        ]
+      }
+    ]
+  },
+  {
+    "metadata": {
+      "project_name": "AI Travel Budget Planner",
+      "city": "nghệ an",
+      "currency": "VND",
+      "version": "web-cache-1.0",
+      "description": "Dữ liệu lấy từ web fallback, cần hiển thị confidence và nguồn.",
+      "data_source": "web_cache",
+      "confidence": "low",
+      "confidence_note": "LLM chuẩn hóa không phản hồi, nên agent dùng heuristic từ kết quả Tavily. Giá chỉ là ước lượng demo.",
+      "source_urls": [
+        "https://intour.com.vn/bang-gia-ve-tham-quan-toan-quoc/cap-nhat-gia-ve-cac-dia-diem-tham-quan-o-nghe-an-moi-nhat.html",
+        "https://tophomestay.vn/gia-ve-tham-quan-du-lich/update-gia-ve-tham-quan-du-lich-o-nghe-an-moi-nhat-1446.html",
+        "https://blog.vexere.com/du-lich-nghe-an-voi-5-dia-diem-ban-khong-nen-bo-lo-vexere-com",
+        "https://vnexpress.net/cam-nang-du-lich-nghe-an-4455646.html",
+        "https://phuotvivu.com/blog/kinh-nghiem-du-lich/du-lich-tu-tuc-nghe-an-kinh-nghiem-lich-trinh-chi-phi",
+        "https://www.traveloka.com/vi-vn/explore/destination/dia-diem-du-lich-nghe/516739"
+      ],
+      "fetched_at": "2026-06-04T08:35:44.480481+00:00"
+    },
+    "budget_planning_rules": {
+      "budget_status": {
+        "within_budget": "Tổng chi phí <= ngân sách người dùng",
+        "over_budget": "Tổng chi phí > ngân sách người dùng"
+      },
+      "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+      "suggestion_policy": "Dữ liệu web-cache phải hiển thị confidence; giá low-confidence chỉ là ước lượng.",
+      "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+    },
+    "transport_options": [
+      {
+        "id": "web_transport_walk_nghe_an",
+        "name": "Đi bộ / gom điểm gần nhau",
+        "estimated_cost_per_trip": 0,
+        "best_for": "Các lịch trình trung tâm hoặc các điểm gần nhau.",
+        "saving_tip": "Vì đây là dữ liệu web fallback, hãy ưu tiên gom các điểm gần nhau và kiểm tra lại quãng đường trước khi đi."
+      },
+      {
+        "id": "web_transport_grab_nghe_an",
+        "name": "Taxi công nghệ / xe ôm công nghệ",
+        "estimated_cost_per_trip": 50000,
+        "best_for": "Di chuyển linh hoạt khi chưa có dữ liệu tuyến đường chính xác.",
+        "saving_tip": "So sánh giá trên app trước khi đặt; chi phí này chỉ là ước lượng demo."
+      }
+    ],
+    "places": [
+      {
+        "id": "web_nghe_an_001",
+        "name": "Giá Vé Tham Quan Ở Nghệ An Mới Nhất 2026",
+        "type": "tham_quan",
+        "area": "nghệ an",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://intour.com.vn/bang-gia-ve-tham-quan-toan-quoc/cap-nhat-gia-ve-cac-dia-diem-tham-quan-o-nghe-an-moi-nhat.html"
+        ]
+      },
+      {
+        "id": "web_nghe_an_002",
+        "name": "UPDATE Giá Vé Tham Quan Du Lịch Ở Nghệ An Mới Nhất 2026",
+        "type": "an_sang",
+        "area": "nghệ an",
+        "average_cost_per_person": 40000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "07:30-08:15",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://tophomestay.vn/gia-ve-tham-quan-du-lich/update-gia-ve-tham-quan-du-lich-o-nghe-an-moi-nhat-1446.html"
+        ]
+      },
+      {
+        "id": "web_nghe_an_003",
+        "name": "Du lịch Nghệ An với 5 địa điểm bạn không nên bỏ lỡ",
+        "type": "an_trua",
+        "area": "nghệ an",
+        "average_cost_per_person": 80000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "12:00-13:00",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": false,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://blog.vexere.com/du-lich-nghe-an-voi-5-dia-diem-ban-khong-nen-bo-lo-vexere-com"
+        ]
+      },
+      {
+        "id": "web_nghe_an_004",
+        "name": "Du lịch tự túc Nghệ An: kinh nghiệm, lịch trình & chi phí",
+        "type": "tham_quan",
+        "area": "nghệ an",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://phuotvivu.com/blog/kinh-nghiem-du-lich/du-lich-tu-tuc-nghe-an-kinh-nghiem-lich-trinh-chi-phi"
+        ]
+      },
+      {
+        "id": "web_nghe_an_005",
+        "name": "Top 15 địa điểm du lịch Nghệ An hấp dẫn không thể bỏ lỡ",
+        "type": "an_toi",
+        "area": "nghệ an",
+        "average_cost_per_person": 80000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "18:30-19:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": false,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://www.traveloka.com/vi-vn/explore/destination/dia-diem-du-lich-nghe/516739"
+        ]
+      },
+      {
+        "id": "web_nghe_an_006",
+        "name": "10 Nhà hàng tốt nhất tại Tỉnh Nghệ An",
+        "type": "tham_quan",
+        "area": "nghệ an",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://www.tripadvisor.com.vn/Restaurants-g2146235-Nghe_An_Province.html"
+        ]
+      },
+      {
+        "id": "web_nghe_an_007",
+        "name": "thảo luận",
+        "type": "an_sang",
+        "area": "nghệ an",
+        "average_cost_per_person": 40000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "07:30-08:15",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://voz.vn/t/xin-tu-van-nghi-an-trua-o-nghe-an.1129952/page-2"
+        ]
+      }
+    ]
   }
 ]

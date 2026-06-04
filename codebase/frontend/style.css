@@ -424,6 +424,30 @@ textarea {
     color: white;
 }
 
+.send-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.stop-btn {
+    background: var(--danger);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 2px;
+    transition: var(--transition);
+}
+
+.stop-btn:hover {
+    filter: brightness(0.95);
+}
+
 .input-footer {
     text-align: center;
     font-size: 11px;
@@ -569,6 +593,7 @@ textarea {
 .timeline-item .time { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
 .timeline-item .activity { font-size: 14px; font-weight: 500; margin: 2px 0; display: flex; align-items: center; gap: 6px; }
 .timeline-item .cost { font-size: 12px; color: var(--text-secondary); }
+.timeline-note { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.45; }
 
 .icon-transport { color: var(--color-transport); font-size: 16px; }
 .icon-food { color: var(--color-food); font-size: 16px; }
@@ -588,6 +613,50 @@ textarea {
 .dot-food { background-color: var(--color-food); }
 .dot-transport { background-color: var(--color-transport); }
 .dot-sight { background-color: var(--color-sight); }
+
+.transport-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.transport-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.transport-row:last-child {
+    border-bottom: 0;
+}
+
+.transport-name {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.transport-name i {
+    color: var(--color-transport);
+}
+
+.transport-note {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.transport-cost {
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
 
 /* Skeleton Loading Effect */
 .skeleton-pulse {

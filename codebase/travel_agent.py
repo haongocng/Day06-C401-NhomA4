@@ -16,7 +16,7 @@ from budget_calculator import (
     generate_saving_suggestions,
     vnd,
 )
-from data_loader import find_city_data, list_supported_cities, load_all_city_data, search_places
+from data_loader import find_city_data, list_supported_cities, load_all_city_data, normalize_text, search_places
 from external_city_data import fetch_external_city_data
 from agent_logger import log_agent_run
 from enrichment_tools import enrich_trip_context
@@ -47,7 +47,27 @@ def detect_response_language(user_text: str) -> str:
     lowered = user_text.lower()
     if any(char in vietnamese_chars for char in lowered):
         return "vi"
-    english_markers = ["travel", "trip", "budget", "itinerary", "from", "people", "destination", "where", "what", "write", "code", "hello", "help", "please"]
+    english_markers = [
+        "travel",
+        "trip",
+        "budget",
+        "itinerary",
+        "from",
+        "people",
+        "destination",
+        "where",
+        "what",
+        "write",
+        "code",
+        "hello",
+        "help",
+        "please",
+        "suggest",
+        "coffee",
+        "shop",
+        "shops",
+        "restaurant",
+    ]
     return "en" if any(marker in lowered for marker in english_markers) else "vi"
 
 
@@ -82,6 +102,11 @@ def is_out_of_scope_request(user_text: str) -> bool:
         "ngân sách",
         "xuất phát",
         "địa điểm",
+        "tham quan",
+        "chơi",
+        "có gì",
+        "quán",
+        "ngon",
         "ăn",
         "cafe",
         "cà phê",
@@ -97,8 +122,14 @@ def is_out_of_scope_request(user_text: str) -> bool:
         "to ",
         "destination",
         "restaurant",
+        "coffee",
+        "coffee shop",
+        "coffee shops",
         "weather",
         "map",
+        "nearby",
+        "good place",
+        "things to do",
     ]
     return not any(signal in lowered for signal in travel_signals)
 
@@ -317,6 +348,15 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
     )
     if target_match:
         target_segment = _clean_city_or_area(target_match.group(1))
+    if not target_segment:
+        for pattern in [
+            r"(?:ở|o|in)\s+([^?.,]+?)(?:\s+(?:không|khong|nào|nao)|[?.,]|$)",
+            r"^\s*([^?.,]+?)\s+(?:có gì|co gi|things to do)",
+        ]:
+            match = re.search(pattern, lower)
+            if match:
+                target_segment = _clean_city_or_area(match.group(1))
+                break
 
     city_or_area = None
     supported_cities = list_supported_cities(city_data)
@@ -324,16 +364,20 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
     for search_text in search_texts:
         if not search_text:
             continue
+        normalized_search_text = normalize_text(search_text)
         for city in supported_cities:
-            if city.lower() in search_text:
+            normalized_city = normalize_text(city)
+            if normalized_city and (normalized_city in normalized_search_text or normalized_search_text in normalized_city):
                 city_or_area = city
                 break
         if city_or_area:
             break
 
     if not city_or_area and not target_segment:
+        normalized_lower = normalize_text(lower)
         for city in supported_cities:
-            if city.lower() in lower:
+            normalized_city = normalize_text(city)
+            if normalized_city and normalized_city in normalized_lower:
                 city_or_area = city
                 break
     if not city_or_area and target_segment:
@@ -463,6 +507,95 @@ def build_itinerary(
     return itinerary
 
 
+def optimize_itinerary_for_budget(
+    itinerary: list[dict[str, Any]],
+    all_places: list[dict[str, Any]],
+    number_of_people: int,
+    budget_cap: int,
+    transport_cost: int,
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    if not itinerary or budget_cap <= 0:
+        return itinerary
+
+    current = calculate_trip_cost(itinerary, number_of_people, transport_cost)["total_cost"]
+    target_min = int(budget_cap * 0.68)
+    target_max = int(budget_cap * 0.9)
+    if current >= target_min:
+        return itinerary
+
+    selected_ids = {place.get("id") for place in itinerary}
+    type_counts: dict[str, int] = {}
+    for place in itinerary:
+        place_type = str(place.get("type", "tham_quan"))
+        type_counts[place_type] = type_counts.get(place_type, 0) + 1
+
+    max_type_counts = {
+        "an_sang": 1,
+        "an_trua": 1,
+        "an_toi": 1,
+        "cafe": 1,
+        "tham_quan": 5,
+    }
+
+    def candidate_score(place: dict[str, Any]) -> tuple[int, int, int, str]:
+        place_type = str(place.get("type", "tham_quan"))
+        cost = int(place.get("average_cost_per_person") or 0)
+        budget_fit = 2 if place.get("is_good_for_budget_travelers") else 0
+        paid_experience = 2 if cost > 0 else 0
+        type_bonus = 2 if place_type in {"tham_quan", "cafe"} else 1
+        return (budget_fit + paid_experience + type_bonus, cost, int(place.get("estimated_duration_minutes") or 0), str(place.get("name", "")))
+
+    candidates = [
+        dict(place)
+        for place in all_places
+        if place.get("id") not in selected_ids and int(place.get("average_cost_per_person") or 0) > 0
+    ]
+    candidates.sort(key=candidate_score, reverse=True)
+
+    optimized = [dict(place) for place in itinerary]
+    total = current
+    for place in candidates:
+        if len(optimized) >= limit or total >= target_min:
+            break
+        place_type = str(place.get("type", "tham_quan"))
+        if type_counts.get(place_type, 0) >= max_type_counts.get(place_type, 2):
+            continue
+        added_cost = int(place.get("average_cost_per_person") or 0) * number_of_people
+        if total + added_cost > target_max:
+            continue
+        place["budget_reason"] = "Thêm vào vì ngân sách còn dư nhiều và hoạt động này tăng trải nghiệm mà vẫn nằm trong trần chi phí."
+        optimized.append(place)
+        selected_ids.add(place.get("id"))
+        type_counts[place_type] = type_counts.get(place_type, 0) + 1
+        total += added_cost
+
+    if total < target_min:
+        for candidate in candidates:
+            if candidate.get("id") in selected_ids:
+                continue
+            candidate_type = str(candidate.get("type", "tham_quan"))
+            candidate_cost = int(candidate.get("average_cost_per_person") or 0) * number_of_people
+            for index, existing in enumerate(optimized):
+                if existing.get("required") or str(existing.get("type", "tham_quan")) != candidate_type:
+                    continue
+                existing_cost = int(existing.get("average_cost_per_person") or 0) * number_of_people
+                new_total = total - existing_cost + candidate_cost
+                if existing_cost >= candidate_cost or new_total > target_max:
+                    continue
+                replacement = dict(candidate)
+                replacement["budget_reason"] = "Đổi sang lựa chọn trải nghiệm tốt hơn vì ngân sách còn dư."
+                optimized[index] = replacement
+                selected_ids.add(candidate.get("id"))
+                total = new_total
+                break
+            if total >= target_min:
+                break
+
+    optimized.sort(key=lambda item: item.get("recommended_time_slot") or "99:99")
+    return optimized
+
+
 def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
     config = load_agent_config()
     language = detect_response_language(user_text)
@@ -545,6 +678,23 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
         int(parsed["number_of_people"]),
         parsed.get("transport_preference"),
         number_of_segments=max(len(itinerary) - 1, 1),
+        starting_location=parsed.get("starting_location"),
+        city_name=city.metadata.get("city"),
+    )
+    itinerary = optimize_itinerary_for_budget(
+        itinerary,
+        city.places,
+        int(parsed["number_of_people"]),
+        int(parsed["budget_cap"]),
+        int(transport_info["estimated_transport_cost"]),
+    )
+    transport_info = estimate_transport_cost(
+        city.transport_options,
+        int(parsed["number_of_people"]),
+        parsed.get("transport_preference"),
+        number_of_segments=max(len(itinerary) - 1, 1),
+        starting_location=parsed.get("starting_location"),
+        city_name=city.metadata.get("city"),
     )
     cost_summary = calculate_trip_cost(
         itinerary,
@@ -596,6 +746,8 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
             "cache_external_city_data" if used_web_fallback else "use_mock_data",
             "estimate_transport_cost",
             "build_itinerary",
+            "optimize_itinerary_for_budget",
+            "estimate_transport_cost_after_optimization",
             "calculate_trip_cost",
             "check_budget_status",
             "generate_saving_suggestions" if budget_status["status"] == "OVER_BUDGET" else "skip_saving_suggestions",

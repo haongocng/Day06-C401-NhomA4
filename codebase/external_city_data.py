@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,7 +56,7 @@ def _record_to_city_data(record: dict[str, Any]) -> CityData:
 def _ascii_text(value: str | None) -> str:
     if not value:
         return ""
-    normalized = unicodedata.normalize("NFD", value.lower())
+    normalized = unicodedata.normalize("NFD", value.lower().replace("đ", "d").replace("Đ", "d"))
     return "".join(char for char in normalized if unicodedata.category(char) != "Mn")
 
 
@@ -77,14 +78,21 @@ def _is_clean_place_name(name: str, city_or_area: str) -> bool:
         "combo",
         "khach san",
         "food tour",
+        "gia ve",
+        "bang gia",
     ]
     generic_terms = [
         "nhung dia diem du lich",
         "top 20",
+        "top 15",
+        "top 10",
+        "top 5",
         "top cac dia diem",
         "top dia diem",
         "dia diem du lich",
         "dia diem tham quan",
+        "cac diem du lich",
+        "cac diem tham quan",
         "kinh nghiem du lich",
         "cam nang du lich",
         "tour du lich",
@@ -450,3 +458,216 @@ def fetch_external_city_data(city_or_area: str) -> CityData | None:
         return None
     _save_external_city(record)
     return _record_to_city_data(record)
+
+
+def fetch_external_cafe_recommendations(city_or_area: str, limit: int = 4) -> list[dict[str, Any]]:
+    env = _load_env()
+    api_key = env.get("tavily_api_key")
+    llm_api_key = env.get("llm_api_key")
+    base_url = env.get("llm_base_url")
+    model = env.get("llm_model")
+    if not api_key:
+        return []
+
+    ascii_city = _ascii_text(city_or_area).title()
+    queries = [
+        f"quán cafe ngon đẹp ở {city_or_area} review",
+        f"{ascii_city} coffee shop cafe review Vietnam",
+        f"{ascii_city} specialty coffee cafe review",
+    ]
+    merged_results: list[dict[str, Any]] = []
+    seen_urls: set[str] = set()
+    for query in queries:
+        try:
+            response = requests.post(
+                "https://api.tavily.com/search",
+                json={
+                    "api_key": api_key,
+                    "query": query,
+                    "search_depth": "basic",
+                    "max_results": 6,
+                    "include_answer": True,
+                    "include_raw_content": False,
+                },
+                timeout=12,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception:
+            continue
+        for item in payload.get("results", []):
+            url = item.get("url")
+            if url and url not in seen_urls:
+                merged_results.append(item)
+                seen_urls.add(url)
+
+    results = [item for item in merged_results if _is_relevant_result(item, city_or_area)]
+    if not results:
+        return []
+
+    sources = [
+        {
+            "title": item.get("title"),
+            "url": item.get("url"),
+            "content": item.get("content"),
+        }
+        for item in results[:6]
+    ]
+    prompt = f"""
+Extract concrete cafe recommendations from these web snippets.
+
+City/area: {city_or_area}
+
+Rules:
+- Return only cafes or drink/dessert shops clearly supported by snippets.
+- Do not return article titles, tour titles, ticket price pages, hotel pages, Instagram/Facebook/Youtube pages, or generic "top cafe" titles.
+- If you cannot identify concrete cafe names, return an empty places array.
+- Use Vietnamese names when available.
+- average_cost_per_person can be conservative estimate in VND if snippets do not show a price.
+
+Return only JSON:
+{{
+  "places": [
+    {{
+      "name": "string",
+      "area": "string",
+      "average_cost_per_person": integer,
+      "recommended_time_slot": "string",
+      "source_urls": ["string"]
+    }}
+  ]
+}}
+
+Search snippets:
+{json.dumps(sources, ensure_ascii=False)}
+""".strip()
+
+    extracted = None
+    if llm_api_key and base_url and model:
+        try:
+            client = OpenAI(api_key=llm_api_key, base_url=base_url, timeout=10, max_retries=0)
+            completion = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a strict extraction tool. Return JSON only."},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0,
+            )
+            extracted = _extract_json(completion.choices[0].message.content or "")
+        except Exception:
+            extracted = None
+
+    cafes: list[dict[str, Any]] = []
+    for index, item in enumerate((extracted or {}).get("places", []), start=1):
+        name = str(item.get("name", "")).strip()
+        if not name or not _is_clean_place_name(name, city_or_area):
+            continue
+        searchable = _ascii_text(" ".join([name, str(item.get("area", ""))]))
+        if any(term in searchable for term in ["gia ve", "tour", "du lich", "khach san", "instagram", "facebook"]):
+            continue
+        cafes.append(
+            {
+                "id": f"web_cafe_{normalize_text(city_or_area).replace(' ', '_')}_{index:03d}",
+                "name": name,
+                "type": "cafe",
+                "area": item.get("area") or city_or_area,
+                "average_cost_per_person": int(item.get("average_cost_per_person") or 45000),
+                "cost_confidence": "low",
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": item.get("recommended_time_slot") or "Linh hoạt",
+                "tags": ["web_fallback", "cafe"],
+                "is_good_for_budget_travelers": True,
+                "saving_tips": ["Kiểm tra lại giờ mở cửa và mức giá trước khi đi."],
+                "source_urls": item.get("source_urls") or [source.get("url") for source in sources if source.get("url")][:2],
+            }
+        )
+        if len(cafes) >= limit:
+            break
+    if not cafes:
+        cafes = _heuristic_cafe_recommendations(city_or_area, results, limit)
+    return cafes
+
+
+def _heuristic_cafe_recommendations(city_or_area: str, results: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
+    bad_terms = [
+        "top ",
+        "best cafe",
+        "best cafes",
+        "guide",
+        "review",
+        "instagram",
+        "facebook",
+        "tiktok",
+        "youtube",
+        "blog",
+        "booking",
+        "booking.com",
+        "restaurant review",
+        "quán cafe đẹp",
+        "quan cafe dep",
+        "những quán",
+        "nhung quan",
+    ]
+    patterns = [
+        r"([A-ZÀ-Ỹ][A-Za-zÀ-ỹ0-9'&.\s-]{1,45}(?:Coffee|Café|Cafe|Cà Phê|Ca Phe))",
+        r"\b((?:Cong|Cộng|Nối|Noi|Ibasho|P Coffee|Roots|The Cups|Sơn Trà|Son Tra|Boulevard|XLIII)[A-Za-zÀ-ỹ0-9'&.\s-]{0,35})",
+    ]
+    candidates: list[tuple[str, str | None]] = []
+    for result in results:
+        url = result.get("url")
+        title = str(result.get("title", ""))
+        content = str(result.get("content", ""))
+        title_candidate = re.split(r"\s*[-,|]\s*(?:Da Nang|Đà Nẵng|Danang|Restaurants|Tripadvisor)", title, maxsplit=1)[0]
+        title_key = _ascii_text(title_candidate)
+        combined_key = _ascii_text(f"{title} {content}")
+        if (
+            3 <= len(title_candidate) <= 55
+            and any(term in combined_key for term in ["coffee", "cafe", "ca phe"])
+            and not any(term in title_key for term in bad_terms)
+        ):
+            candidates.append((title_candidate.title() if title_candidate.isupper() else title_candidate, url))
+        for text in [title, content.replace("·", "\n").replace("•", "\n")]:
+            for pattern in patterns:
+                for match in re.findall(pattern, text):
+                    name = " ".join(str(match).strip(" -–:,.#").split())
+                    name = re.split(r"\s*[-,|]\s*(?:Da Nang|Đà Nẵng|Danang|Restaurants|Tripadvisor)", name, maxsplit=1)[0]
+                    key = _ascii_text(name)
+                    if len(name) < 3 or len(name) > 55:
+                        continue
+                    if len(name.split()) > 6:
+                        continue
+                    if any(term in key for term in bad_terms):
+                        continue
+                    if key in {"coffee", "cafe", "ca phe", "quan cafe", "quan ca phe"}:
+                        continue
+                    if any(term in key for term in [" la mot ", " chuyen phuc vu", "chuyen phuc"]):
+                        continue
+                    candidates.append((name, url))
+
+    cafes: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, (name, url) in enumerate(candidates, start=1):
+        key = normalize_text(name)
+        if key in seen:
+            continue
+        seen.add(key)
+        cafes.append(
+            {
+                "id": f"web_cafe_{normalize_text(city_or_area).replace(' ', '_')}_{index:03d}",
+                "name": name,
+                "type": "cafe",
+                "area": city_or_area,
+                "average_cost_per_person": 45000,
+                "cost_confidence": "low",
+                "estimated_duration_minutes": 45,
+                "recommended_time_slot": "Linh hoạt",
+                "tags": ["web_fallback", "cafe"],
+                "is_good_for_budget_travelers": True,
+                "saving_tips": ["Kiểm tra lại giờ mở cửa và mức giá trước khi đi."],
+                "source_urls": [url] if url else [],
+            }
+        )
+        if len(cafes) >= limit:
+            break
+    return cafes

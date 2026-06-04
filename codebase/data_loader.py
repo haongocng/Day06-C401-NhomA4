@@ -22,7 +22,7 @@ def normalize_text(value: str | None) -> str:
     if not value:
         return ""
     lowered = value.lower().strip()
-    lowered = lowered.replace("đ", "d")
+    lowered = lowered.replace("đ", "d").replace("Đ", "d")
     lowered = unicodedata.normalize("NFD", lowered)
     lowered = "".join(char for char in lowered if unicodedata.category(char) != "Mn")
     replacements = {
