@@ -1,0 +1,89 @@
+# Budget Trip Planner
+
+## Giới thiệu
+
+Budget Trip Planner là trợ lý AI giúp người dùng thiết kế lịch trình du lịch trong phạm vi ngân sách cố định.
+
+
+## Thành viên nhóm
+
+| Mã học viên | Họ và tên    |
+| ----------- | ------------ |
+| 2A202600655       | Ngô Đắc Lãm |
+| 2A202600593       | Phạm Thanh Hằng |
+| 2A202600903       | Nguyễn Ngọc Hảo |
+
+---
+
+Người dùng chỉ cần nhập:
+
+* Ngân sách
+* Thành phố muốn du lịch
+* Địa điểm bắt buộc (nếu có)
+* Sở thích
+
+AI sẽ:
+
+* Tạo lịch trình trong ngày
+* Phân bổ chi phí theo từng hạng mục
+* Cảnh báo vượt ngân sách
+* Đề xuất phương án tiết kiệm
+* Hỗ trợ chỉnh sửa và tính toán lại lịch trình
+
+---
+
+## Track
+
+Travel & Hospitality
+
+---
+
+
+---
+
+## Happy Path
+
+1. Người dùng nhập ngân sách và yêu cầu du lịch.
+2. AI tạo lịch trình phù hợp.
+3. Hiển thị timeline và phân bổ chi phí.
+
+## Low Confidence Path
+
+1. Người dùng nhập thiếu thông tin.
+2. AI hỏi thêm dữ liệu cần thiết.
+3. Sau khi đủ thông tin, AI tạo lịch trình.
+
+## Failure Path
+
+1. Tổng chi phí vượt ngân sách.
+2. AI cảnh báo số tiền vượt.
+3. AI đề xuất các phương án tiết kiệm.
+4. Không tự động xóa địa điểm bắt buộc.
+
+## Correction Path
+
+1. Người dùng chỉnh sửa lịch trình.
+2. AI tính toán lại ngân sách.
+3. Hiển thị sự khác biệt trước và sau khi chỉnh sửa.
+
+```
+
+---
+
+## Công nghệ sử dụng
+
+- Gemini API
+- React / Next.js 
+- Stitch Mockup
+- GitHub
+
+---
+
+## Demo
+
+Prototype hỗ trợ:
+- Happy Path
+- Low Confidence Path
+- Failure Path
+- Correction Path
+```
