@@ -172,5 +172,179 @@
         ]
       }
     ]
+  },
+  {
+    "metadata": {
+      "project_name": "AI Travel Budget Planner",
+      "city": "hải dương",
+      "currency": "VND",
+      "version": "web-cache-1.0",
+      "description": "Dữ liệu lấy từ web fallback, cần hiển thị confidence và nguồn.",
+      "data_source": "web_cache",
+      "confidence": "low",
+      "confidence_note": "LLM chuẩn hóa không phản hồi, nên agent dùng heuristic từ kết quả Tavily. Giá chỉ là ước lượng demo.",
+      "source_urls": [
+        "https://ongvove.com/news/du-lich-hai-duong",
+        "https://tourdulichteambuilding.com/kinh-nghiem-du-lich/gia-ve-cac-diem-tham-quan-tai-hai-duong-moi-nhat-1646.html",
+        "https://tophomestay.vn/gia-ve-tham-quan-du-lich/update-gia-ve-tham-quan-du-lich-o-hai-duong-moi-nhat-1469.html",
+        "https://intour.vn/dia-diem-dep-tai-mien-bac/top-cac-dia-diem-tham-quan-du-lich-dep-noi-tieng-tai-hai-duong-1488.html",
+        "https://cellphones.com.vn/sforum/danh-lam-thang-canh-hai-duong",
+        "https://vnexpress.net/cam-nang-du-lich-hai-duong-4462664.html"
+      ],
+      "fetched_at": "2026-06-04T07:51:40.481918+00:00"
+    },
+    "budget_planning_rules": {
+      "budget_status": {
+        "within_budget": "Tổng chi phí <= ngân sách người dùng",
+        "over_budget": "Tổng chi phí > ngân sách người dùng"
+      },
+      "required_place_policy": "Các địa điểm có required=true phải được giữ lại trong lịch trình, kể cả khi làm vượt ngân sách.",
+      "suggestion_policy": "Dữ liệu web-cache phải hiển thị confidence; giá low-confidence chỉ là ước lượng.",
+      "cost_formula": "total_cost = sum(place_cost_per_person * number_of_people) + transport_cost_total"
+    },
+    "transport_options": [
+      {
+        "id": "web_transport_walk_hai_duong",
+        "name": "Đi bộ / gom điểm gần nhau",
+        "estimated_cost_per_trip": 0,
+        "best_for": "Các lịch trình trung tâm hoặc các điểm gần nhau.",
+        "saving_tip": "Vì đây là dữ liệu web fallback, hãy ưu tiên gom các điểm gần nhau và kiểm tra lại quãng đường trước khi đi."
+      },
+      {
+        "id": "web_transport_grab_hai_duong",
+        "name": "Taxi công nghệ / xe ôm công nghệ",
+        "estimated_cost_per_trip": 50000,
+        "best_for": "Di chuyển linh hoạt khi chưa có dữ liệu tuyến đường chính xác.",
+        "saving_tip": "So sánh giá trên app trước khi đặt; chi phí này chỉ là ước lượng demo."
+      }
+    ],
+    "places": [
+      {
+        "id": "web_hai_duong_001",
+        "name": "Du Lịch Hải Dương: Những địa điểm nổi tiếng nhất định phải ...",
+        "type": "tham_quan",
+        "area": "hải dương",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://ongvove.com/news/du-lich-hai-duong"
+        ]
+      },
+      {
+        "id": "web_hai_duong_002",
+        "name": "Giá vé các điểm tham quan tại Hải Dương mới nhất",
+        "type": "an_sang",
+        "area": "hải dương",
+        "average_cost_per_person": 40000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "07:30-08:15",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://tourdulichteambuilding.com/kinh-nghiem-du-lich/gia-ve-cac-diem-tham-quan-tai-hai-duong-moi-nhat-1646.html"
+        ]
+      },
+      {
+        "id": "web_hai_duong_003",
+        "name": "UPDATE Giá Vé Tham Quan Ở Hải Dương Mới Nhất 2026",
+        "type": "an_trua",
+        "area": "hải dương",
+        "average_cost_per_person": 80000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "12:00-13:00",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": false,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://tophomestay.vn/gia-ve-tham-quan-du-lich/update-gia-ve-tham-quan-du-lich-o-hai-duong-moi-nhat-1469.html"
+        ]
+      },
+      {
+        "id": "web_hai_duong_004",
+        "name": "Top 11 danh lam thắng cảnh Hải Dương đẹp nhất",
+        "type": "tham_quan",
+        "area": "hải dương",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://cellphones.com.vn/sforum/danh-lam-thang-canh-hai-duong"
+        ]
+      },
+      {
+        "id": "web_hai_duong_005",
+        "name": "Review top 10 nhà hàng Hải Dương \"ngon",
+        "type": "tham_quan",
+        "area": "hải dương",
+        "average_cost_per_person": 50000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "09:00-10:30",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://digiticket.vn/blog/nha-hang-hai-duong"
+        ]
+      },
+      {
+        "id": "web_hai_duong_006",
+        "name": "Review những địa chỉ ăn uống ngon ở Hải Dương",
+        "type": "an_sang",
+        "area": "hải dương",
+        "average_cost_per_person": 40000,
+        "cost_confidence": "low",
+        "estimated_duration_minutes": 60,
+        "recommended_time_slot": "07:30-08:15",
+        "tags": [
+          "web_fallback",
+          "ước lượng"
+        ],
+        "is_good_for_budget_travelers": true,
+        "saving_tips": [
+          "Dữ liệu này được suy luận từ web search, hãy kiểm tra lại giá/giờ mở cửa trước khi đi."
+        ],
+        "source_urls": [
+          "https://luhanhvietnam.com.vn/du-lich/review-nhung-dia-chi-an-uong-ngon-o-hai-duong.html"
+        ]
+      }
+    ]
   }
 ]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -51,11 +52,88 @@ def _record_to_city_data(record: dict[str, Any]) -> CityData:
     )
 
 
+def _ascii_text(value: str | None) -> str:
+    if not value:
+        return ""
+    normalized = unicodedata.normalize("NFD", value.lower())
+    return "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+
+
+def _is_clean_place_name(name: str, city_or_area: str) -> bool:
+    text = _ascii_text(name)
+    city = _ascii_text(city_or_area)
+    banned_terms = [
+        "instagram",
+        "facebook",
+        "youtube",
+        "tuyen dung",
+        "viec lam",
+        "singapore",
+        "trung quoc",
+        "nhat ban",
+        "han quoc",
+        "update tour",
+        "so luong co han",
+        "combo",
+        "khach san",
+        "food tour",
+    ]
+    generic_terms = [
+        "nhung dia diem du lich",
+        "top 20",
+        "top cac dia diem",
+        "top dia diem",
+        "dia diem du lich",
+        "dia diem tham quan",
+        "kinh nghiem du lich",
+        "cam nang du lich",
+        "tour du lich",
+        "review cac dia diem",
+        "review moi",
+        "blog",
+        "48h kham pha",
+    ]
+    if any(term in text for term in banned_terms):
+        return False
+    if any(term in text for term in generic_terms):
+        return False
+    return bool(city and city in text) or len(text.split()) <= 8
+
+
+def _is_relevant_result(item: dict[str, Any], city_or_area: str) -> bool:
+    city = _ascii_text(city_or_area)
+    combined = _ascii_text(" ".join([item.get("title", ""), item.get("content", ""), item.get("url", "")]))
+    banned_terms = [
+        "instagram",
+        "facebook",
+        "youtube",
+        "tuyen dung",
+        "viec lam",
+        "singapore",
+        "trung quoc",
+        "nhat ban",
+        "han quoc",
+        "update tour",
+    ]
+    if any(term in combined for term in banned_terms):
+        return False
+    return bool(city and city in combined)
+
+
+def _record_is_usable(record: dict[str, Any]) -> bool:
+    city = record.get("metadata", {}).get("city", "")
+    places = record.get("places", [])
+    clean_count = sum(1 for place in places if _is_clean_place_name(place.get("name", ""), city))
+    return clean_count >= 3
+
+
 def get_cached_external_city(city_or_area: str) -> CityData | None:
     query = normalize_text(city_or_area)
     for record in _read_cache():
         city = normalize_text(record.get("metadata", {}).get("city"))
         if city and (city == query or city in query or query in city):
+            if not _record_is_usable(record):
+                continue
             return _record_to_city_data(record)
     return None
 
@@ -78,27 +156,44 @@ def _tavily_search(city_or_area: str) -> dict[str, Any] | None:
     if not api_key:
         return None
 
-    query = (
-        f"{city_or_area} du lịch 1 ngày địa điểm tham quan ăn uống giá vé "
-        "chi phí di chuyển nguồn chính thức hoặc review"
-    )
-    try:
-        response = requests.post(
-            "https://api.tavily.com/search",
-            json={
-                "api_key": api_key,
-                "query": query,
-                "search_depth": "basic",
-                "max_results": 8,
-                "include_answer": True,
-                "include_raw_content": False,
-            },
-            timeout=12,
-        )
-        response.raise_for_status()
-        return response.json()
-    except Exception:
+    queries = [
+        f"địa điểm tham quan nổi tiếng ở {city_or_area} giá vé",
+        f"quán ăn ngon giá rẻ ở {city_or_area} review",
+        f"quán cafe đẹp ở {city_or_area} review",
+    ]
+    merged_results: list[dict[str, Any]] = []
+    seen_urls: set[str] = set()
+    answers: list[str] = []
+
+    for query in queries:
+        try:
+            response = requests.post(
+                "https://api.tavily.com/search",
+                json={
+                    "api_key": api_key,
+                    "query": query,
+                    "search_depth": "basic",
+                    "max_results": 6,
+                    "include_answer": True,
+                    "include_raw_content": False,
+                },
+                timeout=12,
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if payload.get("answer"):
+                answers.append(payload["answer"])
+            for item in payload.get("results", []):
+                url = item.get("url")
+                if url and url not in seen_urls:
+                    merged_results.append(item)
+                    seen_urls.add(url)
+        except Exception:
+            continue
+
+    if not merged_results:
         return None
+    return {"answer": "\n".join(answers), "results": merged_results[:14]}
 
 
 def _llm_extract_city_data(city_or_area: str, search_payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -203,10 +298,13 @@ def _build_record(extracted: dict[str, Any]) -> dict[str, Any]:
 
     places = []
     for index, place in enumerate(extracted.get("places", []), start=1):
+        name = place.get("name", "")
+        if not _is_clean_place_name(name, city):
+            continue
         places.append(
             {
                 "id": f"web_{normalize_text(city).replace(' ', '_')}_{index:03d}",
-                "name": place.get("name", ""),
+                "name": name,
                 "type": place.get("type", "tham_quan"),
                 "area": place.get("area", city),
                 "average_cost_per_person": int(place.get("average_cost_per_person") or 0),
@@ -267,7 +365,8 @@ def _heuristic_extract_city_data(city_or_area: str, search_payload: dict[str, An
     if not results:
         return None
 
-    source_urls = [item.get("url") for item in results if item.get("url")][:6]
+    filtered_results = [item for item in results if _is_relevant_result(item, city_or_area)]
+    source_urls = [item.get("url") for item in filtered_results if item.get("url")][:6]
     if len(source_urls) < 2:
         return None
 
@@ -289,7 +388,7 @@ def _heuristic_extract_city_data(city_or_area: str, search_payload: dict[str, An
 
     places = []
     used_names: set[str] = set()
-    for index, item in enumerate(results[:6]):
+    for index, item in enumerate(filtered_results[:8]):
         place_type = type_cycle[index % len(type_cycle)]
         raw_title = item.get("title") or f"Gợi ý tại {city_or_area}"
         name = raw_title.split("|")[0].split("-")[0].strip()
@@ -297,6 +396,8 @@ def _heuristic_extract_city_data(city_or_area: str, search_payload: dict[str, An
             name = name[:77].strip() + "..."
         normalized_name = normalize_text(name)
         if not normalized_name or normalized_name in used_names:
+            continue
+        if not _is_clean_place_name(name, city_or_area):
             continue
         used_names.add(normalized_name)
         places.append(
@@ -345,5 +446,7 @@ def fetch_external_city_data(city_or_area: str) -> CityData | None:
         return None
 
     record = _build_record(extracted)
+    if not _record_is_usable(record):
+        return None
     _save_external_city(record)
     return _record_to_city_data(record)

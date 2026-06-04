@@ -18,6 +18,8 @@ from budget_calculator import (
 )
 from data_loader import find_city_data, list_supported_cities, load_all_city_data, search_places
 from external_city_data import fetch_external_city_data
+from agent_logger import log_agent_run
+from enrichment_tools import enrich_trip_context
 
 
 BASE_DIR = Path(__file__).parent
@@ -31,6 +33,92 @@ FIELD_LABELS = {
     "city_or_area": "thành phố/khu vực muốn đi",
     "starting_location": "điểm xuất phát",
 }
+
+FIELD_LABELS_EN = {
+    "budget_cap": "total budget for the group",
+    "number_of_people": "number of travelers",
+    "city_or_area": "target city or area",
+    "starting_location": "starting location",
+}
+
+
+def detect_response_language(user_text: str) -> str:
+    vietnamese_chars = set("ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ")
+    lowered = user_text.lower()
+    if any(char in vietnamese_chars for char in lowered):
+        return "vi"
+    english_markers = ["travel", "trip", "budget", "itinerary", "from", "people", "destination", "where", "what", "write", "code", "hello", "help", "please"]
+    return "en" if any(marker in lowered for marker in english_markers) else "vi"
+
+
+def is_out_of_scope_request(user_text: str) -> bool:
+    lowered = user_text.lower()
+    explicit_non_travel = [
+        "viết code",
+        "python",
+        "javascript",
+        "bóng đá",
+        "bitcoin",
+        "chứng khoán",
+        "làm thơ",
+        "kể chuyện",
+        "dịch bài",
+        "homework",
+        "write code",
+        "stock",
+        "crypto",
+        "football",
+        "poem",
+        "translate",
+    ]
+    if any(term in lowered for term in explicit_non_travel):
+        return True
+
+    travel_signals = [
+        "đi",
+        "du lịch",
+        "tour",
+        "lịch trình",
+        "ngân sách",
+        "xuất phát",
+        "địa điểm",
+        "ăn",
+        "cafe",
+        "cà phê",
+        "check-in",
+        "thời tiết",
+        "review",
+        "bản đồ",
+        "travel",
+        "trip",
+        "itinerary",
+        "budget",
+        "from",
+        "to ",
+        "destination",
+        "restaurant",
+        "weather",
+        "map",
+    ]
+    return not any(signal in lowered for signal in travel_signals)
+
+
+def localized_message(key: str, language: str, **kwargs: Any) -> str:
+    messages = {
+        "out_of_scope": {
+            "vi": "Mình là trợ lý lập lịch trình du lịch theo ngân sách, nên mình chỉ xử lý các câu hỏi liên quan đến chuyến đi, địa điểm, chi phí, ăn uống, di chuyển, thời tiết hoặc review. Bạn hãy gửi yêu cầu du lịch kèm ngân sách, số người, khu vực và điểm xuất phát nhé.",
+            "en": "I am a travel budget planning assistant, so I can only help with trip planning, destinations, costs, food, transport, weather, maps, or reviews. Please send a travel request with budget, number of travelers, destination, and starting location.",
+        },
+        "missing_required": {
+            "vi": "Mình còn thiếu: {labels}. Bạn bổ sung giúp mình để mình tạo tour nhé.",
+            "en": "I still need: {labels}. Please provide those details before I create an itinerary.",
+        },
+        "unsupported_destination": {
+            "vi": "Mình chưa có dữ liệu đủ tin cậy cho khu vực '{city}', nên mình sẽ không tự tạo lịch trình để tránh bịa địa điểm hoặc chi phí. Bạn có thể chọn một nơi phổ biến như {cities}.",
+            "en": "I do not have reliable enough data for '{city}', so I will not create a made-up itinerary. You can choose one of the supported sample cities: {cities}, or try a more common destination.",
+        },
+    }
+    return messages[key][language].format(**kwargs)
 
 
 def load_agent_config() -> dict[str, Any]:
@@ -165,7 +253,7 @@ def _parse_vnd_integer(value: Any) -> int | None:
 
 
 def _parse_people(text: str) -> int | None:
-    match = re.search(r"(\d+)\s*(người|nguoi|bạn|ban)", text.lower())
+    match = re.search(r"(\d+)\s*(người|nguoi|bạn|ban|people|persons|travelers|travellers|pax)", text.lower())
     if match:
         return int(match.group(1))
     return None
@@ -180,6 +268,9 @@ def _clean_city_or_area(value: Any) -> str | None:
     text = re.split(r"\b(?:thích|thich|và thích|va thich|chưa biết|chua biet)\b", text, maxsplit=1)[0]
     text = re.sub(r"\b\d+\s*(ngày|ngay|đêm|dem|hôm|hom)\b", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\b(1 ngày|mot ngay|một ngày)\b", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b(?:for\s+)?\d+\s*(day|days|night|nights)\b", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bfor one day\b", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^(?:travel to|go to|visit|to)\s+", "", text, flags=re.IGNORECASE)
     return " ".join(text.strip(" .,").split()) or None
 
 
@@ -211,6 +302,7 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
     start_patterns = [
         r"(?:xuất phát từ|xuat phat tu|bắt đầu từ|bat dau tu|đi từ|di tu)\s+([^,.]+)",
         r"(?:ở|o)\s+([^,.]+)\s+(?:muốn|muon|đi|di)",
+        r"(?:starting from|start from|departing from|from)\s+([^,.]+?)(?:\s+(?:to|and|with|for)\s+|[,.]|$)",
     ]
     for pattern in start_patterns:
         match = re.search(pattern, lower)
@@ -220,7 +312,7 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
 
     target_segment = None
     target_match = re.search(
-        r"(?:muốn đi|muon di|đến|den|du lịch|du lich|tham quan)\s+([^,.]+)",
+        r"(?:muốn đi|muon di|đến|den|du lịch|du lich|tham quan|travel to|go to|visit|to)\s+([^,.]+)",
         lower,
     )
     if target_match:
@@ -260,7 +352,7 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
         desired_places = []
 
     preferences = []
-    for keyword in ["rẻ", "re", "check-in", "ăn uống", "an uong", "văn hóa", "van hoa", "đi bộ", "di bo"]:
+    for keyword in ["rẻ", "re", "check-in", "ăn uống", "an uong", "văn hóa", "van hoa", "đi bộ", "di bo", "cafe", "quán cafe", "quan cafe"]:
         if keyword in lower:
             preferences.append(keyword)
 
@@ -274,6 +366,7 @@ def _fallback_parse_user_request(user_text: str) -> dict[str, Any]:
         "budget_cap": _parse_budget(user_text),
         "number_of_people": _parse_people(user_text),
         "city_or_area": city_or_area,
+        "_explicit_city_or_area": target_segment,
         "starting_location": starting_location,
         "desired_places": desired_places,
         "travel_date": None,
@@ -289,7 +382,11 @@ def parse_user_request(user_text: str, config: dict[str, Any]) -> dict[str, Any]
     if not parsed:
         parsed = fallback_parsed
     else:
+        if fallback_parsed.get("_explicit_city_or_area"):
+            parsed["city_or_area"] = fallback_parsed["_explicit_city_or_area"]
         for field, value in fallback_parsed.items():
+            if field.startswith("_"):
+                continue
             if parsed.get(field) in [None, "", []] and value not in [None, "", []]:
                 parsed[field] = value
 
@@ -305,6 +402,7 @@ def parse_user_request(user_text: str, config: dict[str, Any]) -> dict[str, Any]
         "meal_preferences": [],
     }
     defaults.update(parsed)
+    defaults.pop("_explicit_city_or_area", None)
     return _coerce_parsed_request(defaults)
 
 
@@ -367,22 +465,44 @@ def build_itinerary(
 
 def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
     config = load_agent_config()
-    parsed = parse_user_request(user_text, config)
-    validation = validate_required_inputs(parsed)
-
-    if not validation["is_valid"]:
-        labels = [FIELD_LABELS[field] for field in validation["missing_fields"]]
-        return {
-            "response_type": "missing_required_input",
-            "captured_fields": parsed,
-            "missing_fields": validation["missing_fields"],
-            "follow_up_question": "Mình còn thiếu: " + ", ".join(labels) + ". Bạn bổ sung giúp mình để mình tạo tour nhé.",
+    language = detect_response_language(user_text)
+    if is_out_of_scope_request(user_text):
+        result = {
+            "response_type": "out_of_scope",
+            "message": localized_message("out_of_scope", language),
+            "captured_fields": {},
+            "missing_fields": [],
             "itinerary": [],
             "cost_summary": {},
             "budget_message": "",
             "saving_suggestions": [],
+            "response_language": language,
+            "tool_trace": ["classify_intent", "reject_out_of_scope"],
+        }
+        result["log"] = log_agent_run(user_text, result)
+        return result
+
+    parsed = parse_user_request(user_text, config)
+    parsed["response_language"] = language
+    validation = validate_required_inputs(parsed)
+
+    if not validation["is_valid"]:
+        label_map = FIELD_LABELS if language == "vi" else FIELD_LABELS_EN
+        labels = [label_map[field] for field in validation["missing_fields"]]
+        result = {
+            "response_type": "missing_required_input",
+            "captured_fields": parsed,
+            "missing_fields": validation["missing_fields"],
+            "follow_up_question": localized_message("missing_required", language, labels=", ".join(labels)),
+            "itinerary": [],
+            "cost_summary": {},
+            "budget_message": "",
+            "saving_suggestions": [],
+            "response_language": language,
             "tool_trace": ["parse_user_request", "validate_required_inputs", "ask_missing_fields"],
         }
+        result["log"] = log_agent_run(user_text, result)
+        return result
 
     all_city_data = load_all_city_data()
     city = find_city_data(parsed["city_or_area"], all_city_data)
@@ -391,18 +511,26 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
         city = fetch_external_city_data(parsed["city_or_area"])
         used_web_fallback = city is not None
         if not city:
-            return {
-                "response_type": "missing_required_input",
+            supported_cities = ", ".join(list_supported_cities(all_city_data))
+            result = {
+                "response_type": "unsupported_destination",
                 "captured_fields": parsed,
-                "missing_fields": ["city_or_area"],
-                "follow_up_question": "Hiện mock data chưa hỗ trợ khu vực này và web fallback chưa lấy được dữ liệu đủ tin cậy. Bạn thử lại với một khu vực khác hoặc bật Tavily/9router rồi chạy lại nhé. Các nơi có sẵn: "
-                + ", ".join(list_supported_cities(all_city_data)),
+                "missing_fields": [],
+                "message": localized_message(
+                    "unsupported_destination",
+                    language,
+                    city=parsed.get("city_or_area"),
+                    cities=supported_cities,
+                ),
                 "itinerary": [],
                 "cost_summary": {},
                 "budget_message": "",
                 "saving_suggestions": [],
+                "response_language": language,
                 "tool_trace": ["parse_user_request", "validate_required_inputs", "search_mock_places", "web_search_costs_failed"],
             }
+            result["log"] = log_agent_run(user_text, result)
+            return result
 
     place_result = search_places(
         city,
@@ -444,7 +572,7 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
 
     metadata = city.metadata or {}
 
-    return {
+    result = {
         "response_type": mode if mode == "inspire_mode" else "itinerary_result",
         "captured_fields": parsed,
         "city": city.metadata.get("city"),
@@ -460,6 +588,7 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
         "budget_message": status_text,
         "saving_suggestions": saving_result["suggestions"],
         "minimum_budget_to_keep_required_places": saving_result["minimum_budget_to_keep_required_places"],
+        "response_language": language,
         "tool_trace": [
             "parse_user_request",
             "validate_required_inputs",
@@ -470,5 +599,11 @@ def run_budget_travel_agent(user_text: str) -> dict[str, Any]:
             "calculate_trip_cost",
             "check_budget_status",
             "generate_saving_suggestions" if budget_status["status"] == "OVER_BUDGET" else "skip_saving_suggestions",
+            "get_weather_suggestion",
+            "build_map_suggestions",
+            "get_review_summary",
         ],
     }
+    result["enrichment"] = enrich_trip_context(result)
+    result["log"] = log_agent_run(user_text, result)
+    return result
