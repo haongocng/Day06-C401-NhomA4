@@ -82,6 +82,55 @@ def build_contextual_prompt(prompt: str) -> str:
     return "\n".join(line for line in context_lines if line)
 
 
+def build_strong_contextual_prompt(prompt: str) -> str:
+    context = st.session_state.get("trip_context")
+    if not context:
+        return prompt
+
+    captured = context.get("captured_fields", {})
+    city = context.get("city") or captured.get("city_or_area")
+    budget = captured.get("budget_cap")
+    people = captured.get("number_of_people")
+    start = captured.get("starting_location")
+
+    return (
+        f"Mình có {budget} VND, đi {people} người, xuất phát từ {start}, "
+        f"muốn đi {city}. Yêu cầu bổ sung: {prompt}"
+    )
+
+
+def is_cafe_followup(prompt: str) -> bool:
+    lowered = prompt.lower()
+    return any(keyword in lowered for keyword in ["cafe", "cà phê", "coffee", "quán cà", "quán cafe"])
+
+
+def build_cafe_followup_answer(prompt: str) -> str:
+    context = st.session_state.get("trip_context") or {}
+    captured = context.get("captured_fields", {})
+    city = context.get("city") or captured.get("city_or_area") or "khu vực này"
+    itinerary = context.get("itinerary", [])
+    cafe_items = [item for item in itinerary if item.get("type") == "cafe"]
+
+    if not cafe_items:
+        return (
+            f"Trong lịch trình hiện tại mình chưa có quán cafe cụ thể ở {city}. "
+            "Bạn có thể hỏi mình thêm theo khu vực cụ thể, ví dụ: 'gợi ý cafe gần trung tâm' hoặc 'gợi ý cafe gần điểm số 4'."
+        )
+
+    lines = [f"Có. Trong lịch trình hiện tại, lựa chọn cafe phù hợp nhất là:"]
+    for item in cafe_items[:3]:
+        lines.append(
+            f"- **{item.get('name')}** ở khu vực {item.get('area', city)}, "
+            f"khung giờ gợi ý {item.get('recommended_time_slot', 'linh hoạt')}, "
+            f"ước tính {vnd(item.get('average_cost_per_person'))}/người."
+        )
+
+    lines.append(
+        "Nếu bạn muốn, mình có thể đổi lịch trình để ưu tiên cafe view đẹp hơn, cafe gần trung tâm hơn, hoặc cafe rẻ hơn."
+    )
+    return "\n\n".join(lines)
+
+
 def render_missing_input(result: dict) -> None:
     st.warning(result.get("follow_up_question", "Mình cần thêm thông tin trước khi tạo tour."))
     with st.expander("Thông tin đã hiểu"):
@@ -159,6 +208,36 @@ def render_itinerary_result(result: dict) -> None:
             + "."
         )
 
+    enrichment = result.get("enrichment", {})
+    if enrichment:
+        st.subheader("Thông tin bổ trợ")
+        weather = enrichment.get("weather", {})
+        map_info = enrichment.get("map", {})
+        reviews = enrichment.get("reviews", {})
+
+        with st.expander("Thời tiết"):
+            st.write(weather.get("summary", "Chưa có dữ liệu thời tiết."))
+            if weather.get("suggestion"):
+                st.info(weather["suggestion"])
+            if weather.get("source"):
+                st.caption(f"Nguồn: {weather['source']}")
+
+        with st.expander("Bản đồ"):
+            st.write(map_info.get("summary", "Kiểm tra bản đồ trước khi đi."))
+            if map_info.get("google_maps_url"):
+                st.link_button("Mở route trên Google Maps", map_info["google_maps_url"])
+            for link in map_info.get("place_links", [])[:4]:
+                st.markdown(f"- [{link.get('name')}]({link.get('url')})")
+
+        with st.expander("Review tham khảo"):
+            st.write(reviews.get("summary", "Chưa có review tổng hợp."))
+            for highlight in reviews.get("highlights", []):
+                st.write(f"- {highlight}")
+            if reviews.get("source_urls"):
+                st.caption("Nguồn tham khảo:")
+                for url in reviews.get("source_urls", [])[:4]:
+                    st.write(url)
+
     with st.expander("Debug agent"):
         st.write(" -> ".join(result.get("tool_trace", [])))
         st.json(
@@ -168,6 +247,7 @@ def render_itinerary_result(result: dict) -> None:
                 "data_confidence": result.get("data_confidence"),
                 "confidence_note": result.get("confidence_note"),
                 "source_urls": result.get("source_urls", []),
+                "log": result.get("log"),
             }
         )
 
@@ -175,6 +255,11 @@ def render_itinerary_result(result: dict) -> None:
 def render_assistant_message(result: dict) -> None:
     if result.get("response_type") == "missing_required_input":
         render_missing_input(result)
+    elif result.get("response_type") in {"out_of_scope", "unsupported_destination"}:
+        st.warning(result.get("message", "Mình chưa thể xử lý yêu cầu này."))
+        with st.expander("Debug agent"):
+            st.write(" -> ".join(result.get("tool_trace", [])))
+            st.json(result.get("captured_fields", {}))
     else:
         render_itinerary_result(result)
 
@@ -185,11 +270,18 @@ def handle_prompt(prompt: str) -> None:
         st.session_state.user_turns = 0
         st.session_state.trip_context = None
 
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    st.session_state.user_turns += 1
+    if st.session_state.get("trip_context") and is_cafe_followup(prompt) and not should_start_new_trip(prompt):
+        st.session_state.messages.append({"role": "assistant", "content": build_cafe_followup_answer(prompt)})
+        return
 
     with st.spinner("Agent đang xử lý yêu cầu..."):
         result = run_budget_travel_agent(build_contextual_prompt(prompt))
+        if (
+            result.get("response_type") == "missing_required_input"
+            and st.session_state.get("trip_context")
+            and not should_start_new_trip(prompt)
+        ):
+            result = run_budget_travel_agent(build_strong_contextual_prompt(prompt))
 
     st.session_state.messages.append({"role": "assistant", "result": result})
     if result.get("response_type") != "missing_required_input":
@@ -210,6 +302,8 @@ if "user_turns" not in st.session_state:
     st.session_state.user_turns = 0
 if "trip_context" not in st.session_state:
     st.session_state.trip_context = None
+if "pending_prompt" not in st.session_state:
+    st.session_state.pending_prompt = None
 
 
 st.title("BudgetTrip Planner")
@@ -256,9 +350,31 @@ for message in st.session_state.messages:
             st.write(message.get("content", ""))
 
 
+if st.session_state.pending_prompt:
+    pending_prompt = st.session_state.pending_prompt
+    st.session_state.pending_prompt = None
+    with st.chat_message("assistant"):
+        handle_prompt(pending_prompt)
+    st.rerun()
+
+
 limit_reached = st.session_state.user_turns >= MAX_USER_TURNS
 if limit_reached:
     st.info("Bạn đã dùng hết 5 lượt hỏi trong phiên demo. Hãy nạp lại trang hoặc bấm 'Bắt đầu chuyến mới' để trải nghiệm thêm.")
+
+if not limit_reached and st.session_state.user_turns == 0:
+    st.caption("Gợi ý thử nhanh")
+    suggestion_col1, suggestion_col2 = st.columns(2)
+    suggestions = [
+        "Mình có 1.500.000 VND, đi 2 người, xuất phát từ trung tâm Đà Lạt, chưa biết đi đâu, thích check-in và ăn uống rẻ.",
+        "Mình có 2 triệu, đi 3 người, xuất phát từ trung tâm Đà Nẵng, muốn đi 1 ngày, ưu tiên check-in và ăn uống rẻ.",
+    ]
+    for column, suggestion in zip([suggestion_col1, suggestion_col2], suggestions):
+        if column.button(suggestion, use_container_width=True):
+            st.session_state.messages.append({"role": "user", "content": suggestion})
+            st.session_state.user_turns += 1
+            st.session_state.pending_prompt = suggestion
+            st.rerun()
 
 prompt = st.chat_input(
     "Nhập yêu cầu hoặc hỏi tiếp về lịch trình...",
@@ -266,5 +382,11 @@ prompt = st.chat_input(
 )
 
 if prompt:
-    handle_prompt(prompt)
+    if should_start_new_trip(prompt):
+        st.session_state.messages = []
+        st.session_state.user_turns = 0
+        st.session_state.trip_context = None
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.user_turns += 1
+    st.session_state.pending_prompt = prompt
     st.rerun()

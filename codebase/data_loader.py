@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -21,11 +22,14 @@ def normalize_text(value: str | None) -> str:
     if not value:
         return ""
     lowered = value.lower().strip()
+    lowered = lowered.replace("đ", "d")
+    lowered = unicodedata.normalize("NFD", lowered)
+    lowered = "".join(char for char in lowered if unicodedata.category(char) != "Mn")
     replacements = {
         "tp.": "thanh pho ",
         "tp ": "thanh pho ",
         "hcm": "ho chi minh",
-        "sài gòn": "ho chi minh",
+        "sai gon": "ho chi minh",
         "saigon": "ho chi minh",
     }
     for old, new in replacements.items():
